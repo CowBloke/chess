@@ -8,6 +8,9 @@ var overlays : Array[ColorRect] = []
 var squarecolors : Array[int] = []
 var counter = 0
 
+var promotionChosen : bool = false
+var promotionChoice
+
 var opponent = "firstbot"
 
 var bot : Node
@@ -38,21 +41,23 @@ func _ready() -> void:
 		#print($BasicLogic.CountPossibleNodes(i+1), "  ", Time.get_ticks_msec()-ms)
 	
 func loadBot(botToLoad : String):
+	if botToLoad == "Human":
+		return
 	var botscript = load("res://bots/"+ botToLoad +".gd")
 	bot.set_script(botscript)
 			
 func madeMove():
-	$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].start) + convertNumberToSquare(Game.moves[len(Game.moves)-1].end)
-	if not Game.whiteToMove: 
+	$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
+	if not Game.whiteToMove and not opponent == "Human": 
 		if $BasicLogic.isCheckmate(Game.whiteToMove):
 			$Result.show()
 		else:
 			var botMove : move = bot.returnMove($BasicLogic)
 			await get_tree().create_timer(0.2).timeout
-			movePieceFrom(botMove.start, botMove.end, true)
+			movePieceFrom(botMove.getStart(), botMove.getEnd(), false	, true)
 			await get_tree().create_timer(0.1).timeout
-			if not searchForPieceAt(botMove.start) == null:
-				searchForPieceAt(botMove.start).processMove()
+			if not searchForPieceAt(botMove.getStart()) == null:
+				searchForPieceAt(botMove.getStart()).processMove()
 		
 
 func createBoard() -> void:
@@ -88,36 +93,54 @@ func snap_to_grid(pos: Vector2):
 func processMove(currentmove : move):
 	var soundtype = "move"
 	if not Game.moves.is_empty():
-		originalSquareColor(Game.moves[len(Game.moves)-1].start)
-		originalSquareColor(Game.moves[len(Game.moves)-1].end)
+		originalSquareColor(Game.moves[len(Game.moves)-1].getStart())
+		originalSquareColor(Game.moves[len(Game.moves)-1].getEnd())
 	
-	if not Game.board[currentmove.end] == "" or currentmove.flag == move.Flags.ENPASSANT:
+	if not Game.board[currentmove.getEnd()] == "" or currentmove.getFlag() == move.Flags.ENPASSANT:
 		soundtype = "capture"
-		Game.board[currentmove.end] = ""
-		capturePieceAt(currentmove.end)
-		if currentmove.flag == move.Flags.ENPASSANT:
-			if currentmove.end % 8 == 2:
-				capturePieceAt(currentmove.end+8)
+		Game.board[currentmove.getEnd()] = ""
+		capturePieceAt(currentmove.getEnd())
+		if currentmove.getFlag() == move.Flags.ENPASSANT:
+			if currentmove.getEnd() % 8 == 2:
+				capturePieceAt(currentmove.getEnd()+8)
 			else:
-				capturePieceAt(currentmove.end-8)
+				capturePieceAt(currentmove.getEnd()-8)
 	else:
-		if currentmove.flag == move.Flags.CASTLING:
+		if currentmove.getFlag() == move.Flags.CASTLING:
 			soundtype = "castle"
-			if currentmove.start == 60: # For white castling
-				if currentmove.end == 62: # King Side
-					movePieceFrom(63, 61)
-				if currentmove.end == 58: # Queen Side
-					movePieceFrom(56, 59)
-			if currentmove.start == 4: # For black castling
-				if currentmove.end == 6: # King Side
-					movePieceFrom(7, 5)
-				if currentmove.end == 2: # Queen Side
-					movePieceFrom(0, 3)
+			if currentmove.getStart() == 60: # For white castling
+				if currentmove.getEnd() == 62: # King Side
+					movePieceFrom(63, 61, true, true)
+				if currentmove.getEnd() == 58: # Queen Side
+					movePieceFrom(56, 59, true, true)
+			if currentmove.getStart() == 4: # For black castling
+				if currentmove.getEnd() == 6: # King Side
+					movePieceFrom(7, 5, true, true)
+				if currentmove.getEnd() == 2: # Queen Side
+					movePieceFrom(0, 3, true, true)
 		else:
 			soundtype = "move"
-		
-	changeSquareColor(currentmove.end, Color("#edda2d"))
-	changeSquareColor(currentmove.start, Color("#edda2d"))
+	
+	if currentmove.getFlag() == move.Flags.KNIGHT_PROMOTE or currentmove.getFlag() == move.Flags.BISHOP_PROMOTE or currentmove.getFlag() == move.Flags.ROOK_PROMOTE or currentmove.getFlag() == move.Flags.QUEEN_PROMOTE:
+		if Game.whiteToMove:
+			print("promoting")
+			$PromotionChoice.show()
+			await promotionChosen == true
+			$PromotionChoice.hide()
+			var text
+			if promotionChoice == "Q":
+				text = load("res://pieces/wQ.png")
+			elif promotionChoice == "R":
+				text = load("res://pieces/wR.png")
+			elif promotionChoice == "B":
+				text = load("res://pieces/wB.png")
+			elif promotionChoice == "N":
+				text = load("res://pieces/wN.png")
+			for i in $PieceGrid.get_children():
+				i.changeTexture(currentmove.getEnd(), text)
+			
+	changeSquareColor(currentmove.getEnd(), Color("#edda2d"))
+	changeSquareColor(currentmove.getStart(), Color("#edda2d"))
 	
 	Game.makeMove(currentmove)
 	
@@ -159,13 +182,13 @@ func deleteAllPieces() -> void:
 
 func showMovesForPiece(square : int):
 	for i in $BasicLogic.GenerateLegalMoves(Game.whiteToMove):
-		if i.start == square:
-			changeSquareColor(i.end, Color("#ff0000"))
+		if i.getStart() == square:
+			changeSquareColor(i.getEnd(), Color("#ff0000"))
 			
 func hideMovesForPiece(square : int):
 	for i in $BasicLogic.GenerateLegalMoves(Game.whiteToMove):
-		if i.start == square:
-			originalSquareColor(i.end)
+		if i.getStart() == square:
+			originalSquareColor(i.getEnd())
 
 func loadFromFen(fen_string : String):
 	deleteAllPieces()
@@ -208,9 +231,9 @@ func searchForPieceAt(number : int):
 func _on_line_edit_text_submitted(new_text: String) -> void:
 	loadFromFen(new_text)
 
-func movePieceFrom(square : int, square2 : int, tween : bool = false):
+func movePieceFrom(square : int, square2 : int, really : bool = false, tween : bool = false):
 	for i in $PieceGrid.get_children():
-		i.movePieceFrom(square, square2, false, tween)
+		i.movePieceFrom(square, square2, really, tween)
 
 func changeSquareColor(square : int, newcolor : Color):
 	squares[square].color = squares[square].color.lerp(newcolor, 0.5)
@@ -252,5 +275,15 @@ func attackOverlay():
 	for i in attacks:
 		overlays[i].color = Color("#ff7a006c")
 
-func _on_button_pressed() -> void:
-	pass
+
+func _on_queen_pressed() -> void:
+	promotionChoice = "Q" if Game.whiteToMove else "q"
+
+func _on_rook_pressed() -> void:
+	promotionChoice = "R" if Game.whiteToMove else "r"
+
+func _on_bishop_pressed() -> void:
+	promotionChoice = "B" if Game.whiteToMove else "b"
+
+func _on_knight_pressed() -> void:
+	promotionChoice = "N" if Game.whiteToMove else "n"

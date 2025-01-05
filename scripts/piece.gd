@@ -24,9 +24,10 @@ func processMove():
 		var isSquareValid = false
 		var moveData : move
 		for i in root.getMoves():
-			if i.start == GetSquareNb(originalPos) and i.end == nextSquare:
+			if i.getStart() == GetSquareNb(originalPos) and i.getEnd() == nextSquare:
 				isSquareValid = true
 				moveData = i
+				
 				break
 		if not isSquareValid:
 			global_position = originalPos
@@ -58,16 +59,21 @@ func returnSquareFromNumber(square : int):
 func deleteAtSquare(number : int):
 	if number == GetSquareNb(originalPos):
 		hide()
+		
+func changeTexture(number : int, texture : Texture):
+	if number == GetSquareNb(global_position):
+		texture = texture
 	
 func movePieceFrom(number : int, number2 : int, _keepGlobalPos = false, tween : bool = false):
 	if GetSquareNb(global_position) == number:
+		if _keepGlobalPos:
+			originalPos = returnSquareFromNumber(number2)
 		if tween:
 			var tween_ = create_tween()
 			tween_.tween_property(self, "global_position", returnSquareFromNumber(number2), 0.1)
 		else:
 			global_position = returnSquareFromNumber(number2)
-			if _keepGlobalPos:
-				originalPos = global_position
+		
 		
 
 func snap_to_grid(pos: Vector2):

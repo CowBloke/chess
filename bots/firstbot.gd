@@ -17,10 +17,13 @@ func returnMove(logicNode : Node):
 	var thread = Thread.new()
 	thread.start(startSearch)
 	thread.wait_to_finish()
+	Game.makeMove(bestMove, false)
+	print(evaluate())
+	Game.unmakeMove(bestMove)
 	return bestMove
 
 func startSearch():
-	Search(3)
+	Search(3, true)
 
 const pawnValue = 100
 const knightValue = 300
@@ -31,16 +34,16 @@ const queenValue = 900
 func evaluate():
 	var whiteMaterial = countMaterial(true)
 	var blackMaterial = countMaterial(false)
-	return (whiteMaterial - blackMaterial) * (1 if Game.whiteToMove else -1)
+	return (whiteMaterial - blackMaterial) * (-1 if Game.whiteToMove else 1)
 
 func _ready() -> void:
 	while true:
 		print(evaluate())
 
-func Search(depth: int) -> int:
+func Search(depth: int, isRoot : bool) -> int:
 	if depth == 0:
 		return evaluate()
-	var moves = logic.GenerateMoves(Game.whiteToMove)
+	var moves = logic.GenerateLegalMoves(Game.whiteToMove)
 
 	if len(moves) == 0:
 		return -INF  # Checkmate or stalemate
@@ -48,11 +51,12 @@ func Search(depth: int) -> int:
 	var maxEval = -INF
 	for move_ in moves:
 		Game.makeMove(move_, false)
-		var result = -Search(depth - 1)
+		var result = -Search(depth - 1, false)
 		Game.unmakeMove(move_)
 
 		if result > maxEval:
-			bestMove = move_
+			if isRoot:
+				bestMove = move_
 			maxEval = result
 	return maxEval
 

@@ -7,7 +7,7 @@ const Rook = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 const Queen = [[1, -1], [-1, -1], [-1, 1], [1, 1],[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 const bishopOffsets = [-7, 9, 7, -9]
-const rookOffsets = [-8, 1, 8, -1, -7, 9, 7, -9]
+const rookOffsets = [-8, 1, 8, -1]
 const queenOffsets = [-8, 1, 8, -1, -7, 9, 7, -9]
 
 var precomputedMoveData = []
@@ -22,75 +22,56 @@ var rooks : Array
 var queens : Array
 var king : int
 
-var white_pawns = 0xff00
-var white_rooks = 0x81
-var white_knights = 0x42
-var white_bishops = 0x24
-var white_queen = 0x8
-var white_king = 0x10
-var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
-
-var black_pawns = 0xff000000000000
-var black_rooks = 0x8100000000000000
-var black_knights = 0x4200000000000000
-var black_bishops = 0x2400000000000000
-var black_queen = 0x800000000000000
-var black_king = 0x1000000000000000
-var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queen | black_king
-
-var all_pieces = white_pieces|black_pieces
-var empty_squares = ~all_pieces
-
-func updateBitboards():
-	var all_pieces = white_pieces|black_pieces
-	var empty_squares = ~all_pieces
-	var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
-	var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queen | black_king
-
-func generateBishopMoves(white : bool):
-	var friendlyBishops = white_bishops if white else black_bishops
-	var friendlyPieces = white_pieces if white else black_pieces
-	var enemyPieces = black_pieces if white else white_pieces
+#func updateBitboards():
+	#var all_pieces = white_pieces|black_pieces
+	#var empty_squares = ~all_pieces
+	#var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
+	#var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queen | black_king
+#
+#func generateBishopMoves(white : bool):
+	#var friendlyBishops = white_bishops if white else black_bishops
+	#var friendlyPieces = white_pieces if white else black_pieces
+	#var enemyPieces = black_pieces if white else white_pieces
 	
-	for i in bishopOffsets:
-		var tempBishops = friendlyBishops >> i
-		if tempBishops == 0:
-			pass
-		else:
-			pass
-	
+	#for i in bishopOffsets:
+		#var tempBishops = friendlyBishops >> i
+		#if tempBishops == 0:
+			#pass
+		#else:
+			#pass
+	#
 
+func _ready() -> void:
+	calculatePrecomputedMoveData()
 
-#func calculatePrecomputedMoveData():
-	#for rank in range(8):
-		#for file in range(8):
-			#var numNorth = rank
-			#var numSouth = 7 - rank
-			#var numWest = file
-			#var numEast = 7 - file
-			#
-			#precomputedMoveData.append([numNorth, numEast, numSouth, numWest, min(numNorth, numEast), min(numEast, numSouth), min(numSouth, numWest), min(numWest, numNorth)])
+func calculatePrecomputedMoveData():
+	for rank in range(8):
+		for file in range(8):
+			var numNorth = rank
+			var numSouth = 7 - rank
+			var numWest = file
+			var numEast = 7 - file
+			precomputedMoveData.append([numNorth, numEast, numSouth, numWest, min(numNorth, numEast), min(numEast, numSouth), min(numSouth, numWest), min(numWest, numNorth)])
 			
 
 func GenerateAttackSquares(white : bool):
 	var captureSquares : Array[int] = []
 	var move_list = GenerateLegalMoves(white)
 	for i in move_list:
-		if not i.end in captureSquares:
-			captureSquares.append(i.end)
+		if not i.getEnd() in captureSquares:
+			captureSquares.append(i.getEnd())
 	return captureSquares
 		
 
-func CountPossibleNodes(depth : int):
-	if depth == 0:
-		return 1
-	var moves = GenerateLegalMoves(Game.whiteToMove)
-	var counter = 0
-	for i in moves:
-		Game.makeMove(i, false)
-		counter += CountPossibleNodes(depth - 1)
-		Game.unmakeMove(i)
-	return counter
+#func CountPossibleNodes(depth : int):
+		#return 1
+	#var moves = GenerateLegalMoves(Game.whiteToMove)
+	#var counter = 0
+	#for i in moves:
+		#Game.makeMove(i, false)
+		#counter += CountPossibleNodes(depth - 1)
+		#Game.unmakeMove(i)
+	#return counter
 
 
 func GenerateMoves(white : bool):
@@ -145,7 +126,7 @@ func GenerateLegalMoves(white):
 		var current_moves = GenerateMoves(not white)
 		createPieceLists(white)
 		for j in current_moves:
-			if j.end == Game.board.find("K" if white else "k"):
+			if j.getEnd() == Game.board.find("K" if white else "k"):
 				legal_moves.remove_at(legal_moves.find(base_moves[i]))
 				break
 		Game.unmakeMove(base_moves[i])
@@ -159,20 +140,19 @@ func file(nb : int):
 
 func GeneratePawnMoves(white : bool):
 	for i in pawns:
-		if isMoveValidSquare(i, 0,-1):
-			if board[i-8] == "":
-				if rank(i-8) == 0: # If promotion
-					moves.append(returnMove(i, i-8, white, move.Flags.QUEEN_PROMOTE))
-					moves.append(returnMove(i, i-8, white, move.Flags.KNIGHT_PROMOTE))
-					moves.append(returnMove(i, i-8, white, move.Flags.BISHOP_PROMOTE))
-					moves.append(returnMove(i, i-8, white, move.Flags.ROOK_PROMOTE))
-				else:
-					moves.append(returnMove(i, i-8, white))
-		if isMoveValidSquare(i, 0, -2):
-			if board[i-16] == "" and board[i-8] == "" and rank(i) == 6:
+		if board[i-8] == "":
+			if rank(i-8) == 0: # If promotion
+				moves.append(returnMove(i, i-8, white, move.Flags.QUEEN_PROMOTE))
+				moves.append(returnMove(i, i-8, white, move.Flags.KNIGHT_PROMOTE))
+				moves.append(returnMove(i, i-8, white, move.Flags.BISHOP_PROMOTE))
+				moves.append(returnMove(i, i-8, white, move.Flags.ROOK_PROMOTE))
+			else:
+				moves.append(returnMove(i, i-8, white))
+			if board[i-16] == "" and rank(i) == 6:
 				moves.append(returnMove(i, i-16, white))
-		if isEnemyPiece(board[i-9], white) and isMoveValidSquare(i, -1, -1):
-			if floor((i-9)/8) == 0: # If promotion
+		
+		if isEnemyPiece(board[i-9], white) and not file(i-9) == 0:
+			if rank(i-9) == 0: # If promotion
 				moves.append(returnMove(i, i-9, white, move.Flags.QUEEN_PROMOTE))
 				moves.append(returnMove(i, i-9, white, move.Flags.KNIGHT_PROMOTE))
 				moves.append(returnMove(i, i-9, white, move.Flags.BISHOP_PROMOTE))
@@ -180,8 +160,8 @@ func GeneratePawnMoves(white : bool):
 			else:
 				moves.append(returnMove(i, i-9, white))
 			
-		if isEnemyPiece(board[i-7], white) and isMoveValidSquare(i, 1, -1):
-			if floor((i-7)/8) == 0: # If promotion
+		if isEnemyPiece(board[i-7], white) and not file(i-7) == 0:
+			if rank(i-7) == 0: # If promotion
 				moves.append(returnMove(i, i-7, white, move.Flags.QUEEN_PROMOTE))
 				moves.append(returnMove(i, i-7, white, move.Flags.KNIGHT_PROMOTE))
 				moves.append(returnMove(i, i-7, white, move.Flags.BISHOP_PROMOTE))
@@ -189,11 +169,12 @@ func GeneratePawnMoves(white : bool):
 			else:
 				moves.append(returnMove(i, i-7, white))
 		if len(Game.moves) > 1:
-			if floor(i/8) == 3: # en passant
-				if (Game.moves[len(Game.moves)-1].end if white else 63 - Game.moves[len(Game.moves)-1].end) == i+1 and not i%8 == 7:
-					moves.append(returnMove(i, i-7, white, move.Flags.ENPASSANT))
-				if (Game.moves[len(Game.moves)-1].end if white else 63 - Game.moves[len(Game.moves)-1].end) == i-1 and not i%8 == 0:
-					moves.append(returnMove(i, i-9, white, move.Flags.ENPASSANT))
+			if rank(i) == 3: # en passant
+				if board[i+1] == ("p" if white else "P"):
+					if (Game.moves[len(Game.moves)-1].getEnd() if white else 63 - Game.moves[len(Game.moves)-1].getEnd()) == i+1 and not i%8 == 7:
+						moves.append(returnMove(i, i-7, white, move.Flags.ENPASSANT))
+					if (Game.moves[len(Game.moves)-1].getEnd() if white else 63 - Game.moves[len(Game.moves)-1].getEnd()) == i-1 and not i%8 == 0:
+						moves.append(returnMove(i, i-9, white, move.Flags.ENPASSANT))
 
 func GenerateKnightMoves(white : bool):
 	for i in knights:
@@ -204,32 +185,37 @@ func GenerateKnightMoves(white : bool):
 
 func GenerateBishopMoves(white : bool):
 	for i in bishops:
-		for j in Bishop:
+		for j in range(len(bishopOffsets)):
 			var mult = 1
-			while isMoveValidSquare(i, j[0] * mult, j[1] * mult) and not isFriendlyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
-				moves.append(returnMove(i, getMoveDisplacement(i, j[0] * mult, j[1] * mult), white))
-				if isEnemyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
+			for k in range(precomputedMoveData[i][j+4]):
+				if isFriendlyPiece(board[i+(bishopOffsets[j] * mult)], white):
+					break
+				moves.append(returnMove(i, i+(bishopOffsets[j] * mult), white))
+				if isEnemyPiece(board[i+(bishopOffsets[j] * mult)], white):
 					break
 				mult += 1
 
 func GenerateRookMoves(white : bool):
 	for i in rooks:
-		for j in Rook:
+		for j in range(len(rookOffsets)):
 			var mult = 1
-			var displacement = getMoveDisplacement(i, j[0] * mult, j[1] * mult)
-			while isMoveValidSquare(i, j[0] * mult, j[1] * mult) and not isFriendlyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
-				moves.append(returnMove(i, getMoveDisplacement(i, j[0] * mult, j[1] * mult), white))
-				if isEnemyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
+			for k in range(precomputedMoveData[i][j]):
+				if isFriendlyPiece(board[i+(rookOffsets[j] * mult)], white):
+					break
+				moves.append(returnMove(i, i+(rookOffsets[j] * mult), white))
+				if isEnemyPiece(board[i+(rookOffsets[j] * mult)], white):
 					break
 				mult += 1
 
 func GenerateQueenMoves(white : bool):
 	for i in queens:
-		for j in Queen:
+		for j in range(len(queenOffsets)):
 			var mult = 1
-			while isMoveValidSquare(i, j[0] * mult, j[1] * mult) and not isFriendlyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
-				moves.append(returnMove(i, getMoveDisplacement(i, j[0] * mult, j[1] * mult), white))
-				if isEnemyPiece(board[getMoveDisplacement(i, j[0] * mult, j[1] * mult)], white):
+			for k in range(precomputedMoveData[i][j]):
+				if isFriendlyPiece(board[i+(queenOffsets[j] * mult)], white):
+					break
+				moves.append(returnMove(i, i+(queenOffsets[j] * mult), white))
+				if isEnemyPiece(board[i+(queenOffsets[j] * mult)], white):
 					break
 				mult += 1
 
@@ -278,11 +264,12 @@ func createPieceLists(white : bool):
 				if board[i].to_lower() == "k": 
 					king = i
 
-func returnMove(start : int, end : int, white : bool, _flag : move.Flags = move.Flags.NONE) -> move:
+func returnMove(start : int, end : int, white : bool, flag : move.Flags = move.Flags.NONE) -> move:
 	var newmove = move.new()
-	newmove.start = start if white else 63 - start
-	newmove.end = end if white else 63 - end
-	newmove.flag = _flag
+	if not white:
+		start = 63-start
+		end = 63-end
+	newmove.movedata = (((start<<6)| end )<< 4)|flag
 	return newmove
 
 func isMoveValidSquare(start : int, xslide : int, yslide : int) -> bool: # Check if movement is within bounds of game

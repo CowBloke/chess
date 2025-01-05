@@ -9,6 +9,26 @@ var whiteCastleKingSide = true
 var blackCastleQueenSide = true
 var blackCastleKingSide = true
 
+var white_pawns = 0xff00
+var white_rooks = 0x81
+var white_knights = 0x42
+var white_bishops = 0x24
+var white_queen = 0x8
+var white_king = 0x10
+var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
+
+var black_pawns = 0xff000000000000
+var black_rooks = 0x8100000000000000
+var black_knights = 0x4200000000000000
+var black_bishops = 0x2400000000000000
+var black_queen = 0x800000000000000
+var black_king = 0x1000000000000000
+var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queen | black_king
+
+var all_pieces = white_pieces|black_pieces
+var empty_squares = ~all_pieces
+
+
 var defaultBoard = ["r", "n", "b", "q", "k", "b", "n", "r", "p", "p", "p", "p", "p", "p", "p", "p", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "P", "P", "P", "P", "P", "P", "P", "P", "R", "N", "B", "Q", "K", "B", "N", "R"]
 
 var gameStates = []
@@ -20,37 +40,47 @@ func _ready() -> void:
 	gameStates.append({"board" : defaultBoard, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
 
 func makeMove(Move : move, really : bool = true):
-	board[Move.end] = board[Move.start]
-	board[Move.start] = ""
-	if Move.flag == move.Flags.CASTLING:
-		if Move.end == 62:
+	var startSquare = Move.getStart()
+	var endSquare = Move.getEnd()
+	board[endSquare] = board[startSquare]
+	board[startSquare] = ""
+	if Move.getFlag() == move.Flags.KNIGHT_PROMOTE:
+		board[endSquare] = "N" if whiteToMove else "n"
+	if Move.getFlag() == move.Flags.BISHOP_PROMOTE:
+		board[endSquare] = "B" if whiteToMove else "b"
+	if Move.getFlag() == move.Flags.ROOK_PROMOTE:
+		board[endSquare] = "R" if whiteToMove else "r"
+	if Move.getFlag() == move.Flags.QUEEN_PROMOTE:
+		board[endSquare] = "Q" if whiteToMove else "q"
+	if Move.getFlag() == move.Flags.CASTLING:
+		if endSquare == 62:
 			board[61] = board[63]
 			board[63] = ""
-		if Move.end == 58:
+		if endSquare == 58:
 			board[59] = board[56]
 			board[56] = ""
-		if Move.end == 6:
+		if endSquare == 6:
 			board[7] = board[5]
 			board[5] = ""
-		if Move.end == 2:
+		if endSquare == 2:
 			board[3] = board[0]
 			board[0] = ""
 	if whiteCastleKingSide:
-		if Move.start == 63:
+		if startSquare == 63:
 			whiteCastleKingSide = false
 	if whiteCastleQueenSide:
-		if Move.start == 56:
+		if startSquare == 56:
 			whiteCastleQueenSide = false
 	if blackCastleKingSide:
-		if Move.start == 7:
+		if startSquare == 7:
 			blackCastleKingSide = false
 	if blackCastleQueenSide:
-		if Move.start == 0:
+		if startSquare == 0:
 			blackCastleQueenSide = false
-	if Move.start == 60:
+	if startSquare == 60:
 		whiteCastleKingSide = false
 		whiteCastleQueenSide = false
-	if Move.start == 4:
+	if startSquare == 4:
 		blackCastleKingSide = false
 		blackCastleQueenSide = false
 	Game.whiteToMove = not Game.whiteToMove
