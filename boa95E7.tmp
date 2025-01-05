@@ -1,0 +1,93 @@
+[gd_scene load_steps=5 format=3 uid="uid://nu70trbhcl44"]
+
+[ext_resource type="Script" path="res://scripts/board.gd" id="1_yc2dg"]
+[ext_resource type="AudioStream" uid="uid://q3arq0lyx12d" path="res://sounds/move-self.mp3" id="2_yinrl"]
+[ext_resource type="Script" path="res://scripts/basic_logic.gd" id="3_6jxgl"]
+[ext_resource type="AudioStream" uid="uid://b678ct6g4e2rb" path="res://sounds/capture.mp3" id="3_fcq2m"]
+
+[node name="Board" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yc2dg")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.122252, 0.122252, 0.122252, 1)
+
+[node name="LineEdit" type="LineEdit" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.136458
+anchor_top = 0.0203704
+anchor_right = 0.873958
+anchor_bottom = 0.0493704
+offset_bottom = -0.32
+grow_horizontal = 2
+placeholder_text = "Fen Notation..."
+metadata/_edit_use_anchors_ = true
+
+[node name="Border" type="ColorRect" parent="."]
+layout_mode = 2
+offset_left = 540.0
+offset_top = 120.0
+offset_right = 1360.0
+offset_bottom = 940.0
+color = Color(0.325441, 0.325441, 0.325441, 1)
+
+[node name="SquareGrid" type="GridContainer" parent="."]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -410.0
+offset_top = -410.0
+offset_right = 390.0
+offset_bottom = 390.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = -1
+theme_override_constants/v_separation = -1
+columns = 8
+
+[node name="PieceGrid" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 550.0
+offset_top = 130.0
+offset_right = 1350.0
+offset_bottom = 930.0
+
+[node name="Control" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Move" type="AudioStreamPlayer" parent="Control"]
+stream = ExtResource("2_yinrl")
+
+[node name="Capture" type="AudioStreamPlayer" parent="Control"]
+stream = ExtResource("3_fcq2m")
+
+[node name="Bot" type="Node" parent="."]
+
+[node name="BasicLogic" type="Node" parent="."]
+script = ExtResource("3_6jxgl")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.929412, 0.854902, 0.176471, 1)
+
+[connection signal="text_submitted" from="LineEdit" to="." method="_on_line_edit_text_submitted"]
