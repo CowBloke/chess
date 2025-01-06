@@ -41,9 +41,17 @@ func processMove():
 			
 			root.hideMovesForPiece(GetSquareNb(originalPos))
 			
+			if moveData.getFlag() == move.Flags.KNIGHT_PROMOTE or moveData.getFlag() == move.Flags.BISHOP_PROMOTE or moveData.getFlag() == move.Flags.ROOK_PROMOTE or moveData.getFlag() == move.Flags.QUEEN_PROMOTE:
+				if (Game.wPlayer if Game.whiteToMove else Game.bPlayer) == "Human":
+					#var chosenPromotion = root.returnPromotion().lower()
+					#var promotiontable = {"q" : move.Flags.QUEEN_PROMOTE, "r" : move.Flags.ROOK_PROMOTE, "b" : move.Flags.BISHOP_PROMOTE, "n" : move.Flags.KNIGHT_PROMOTE}
+					#moveData.movedata = (moveData.movedata >> 4 << 4 )|promotiontable[chosenPromotion]
+					texture = load("res://pieces/wQ.png")
+					
+					
 			root.processMove(moveData)
 			originalPos = global_position
-			
+
 func GetSquareNb(pos : Vector2):
 	pos = snap_to_grid(pos)
 	pos -= Vector2(205, 45)

@@ -11,9 +11,9 @@ var counter = 0
 var promotionChosen : bool = false
 var promotionChoice
 
-var opponent = "firstbot"
 
 var bot : Node
+var bot2 : Node
 
 var board = []
 
@@ -32,29 +32,40 @@ func _ready() -> void:
 	captureSound = $Sounds/Capture
 	checkSound = $Sounds/Check
 	castleSound = $Sounds/Castle
-	bot = $Bot
-	loadBot(opponent)
-	loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+	loadBots()
+	loadFromFen(Game.startingPos)
 	await get_tree().create_timer(0.5).timeout
 	#for i in range(4):
 		#var ms = Time.get_ticks_msec()
 		#print($BasicLogic.CountPossibleNodes(i+1), "  ", Time.get_ticks_msec()-ms)
+	if not Game.wPlayer == "Human":
+		madeMove()
 	
-func loadBot(botToLoad : String):
-	if botToLoad == "Human":
-		return
-	var botscript = load("res://bots/"+ botToLoad +".gd")
-	bot.set_script(botscript)
+func loadBots():
+	bot = $Bot
+	bot2 = $Bot2
+	if not Game.wPlayer == "Human":
+		var botscript = load("res://bots/"+ Game.wPlayer +".gd")
+		bot.set_script(botscript)
+	if not Game.bPlayer == "Human":
+		var botscript = load("res://bots/"+ Game.bPlayer +".gd")
+		bot2.set_script(botscript)
+	
 			
 func madeMove():
-	$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
-	if not Game.whiteToMove and not opponent == "Human": 
+	if len(Game.moves) > 0:
+		$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
+	if $BasicLogic.isCheckmate(not Game.whiteToMove):
+			$Result.text = "Checkmate Bot wins"
+			$Result.show()
+	if not (Game.wPlayer if Game.whiteToMove else Game.bPlayer) == "Human": 
 		if $BasicLogic.isCheckmate(Game.whiteToMove):
 			$Result.show()
 		else:
-			var botMove : move = bot.returnMove($BasicLogic)
 			await get_tree().create_timer(0.2).timeout
-			movePieceFrom(botMove.getStart(), botMove.getEnd(), false	, true)
+			var botMove : move = bot2.returnMove($BasicLogic) if Game.whiteToMove else bot.returnMove($BasicLogic)
+			await get_tree().create_timer(0.2).timeout
+			movePieceFrom(botMove.getStart(), botMove.getEnd(), false, true)
 			await get_tree().create_timer(0.1).timeout
 			if not searchForPieceAt(botMove.getStart()) == null:
 				searchForPieceAt(botMove.getStart()).processMove()
@@ -101,7 +112,7 @@ func processMove(currentmove : move):
 		Game.board[currentmove.getEnd()] = ""
 		capturePieceAt(currentmove.getEnd())
 		if currentmove.getFlag() == move.Flags.ENPASSANT:
-			if currentmove.getEnd() % 8 == 2:
+			if floor(currentmove.getEnd() / 8) == 2:
 				capturePieceAt(currentmove.getEnd()+8)
 			else:
 				capturePieceAt(currentmove.getEnd()-8)
@@ -121,24 +132,20 @@ func processMove(currentmove : move):
 		else:
 			soundtype = "move"
 	
-	if currentmove.getFlag() == move.Flags.KNIGHT_PROMOTE or currentmove.getFlag() == move.Flags.BISHOP_PROMOTE or currentmove.getFlag() == move.Flags.ROOK_PROMOTE or currentmove.getFlag() == move.Flags.QUEEN_PROMOTE:
-		if Game.whiteToMove:
-			print("promoting")
-			$PromotionChoice.show()
-			await promotionChosen == true
-			$PromotionChoice.hide()
-			var text
-			if promotionChoice == "Q":
-				text = load("res://pieces/wQ.png")
-			elif promotionChoice == "R":
-				text = load("res://pieces/wR.png")
-			elif promotionChoice == "B":
-				text = load("res://pieces/wB.png")
-			elif promotionChoice == "N":
-				text = load("res://pieces/wN.png")
-			for i in $PieceGrid.get_children():
-				i.changeTexture(currentmove.getEnd(), text)
-			
+	#if currentmove.getFlag() == move.Flags.QUEEN_PROMOTE:
+		#var text = (load("res://pieces/wQ.png") if Game.whiteToMove else load("res://pieces/bQ.png"))
+		#changePieceTexture(currentmove.getEnd(), text)
+	#if currentmove.getFlag() == move.Flags.ROOK_PROMOTE:
+		#var text = (load("res://pieces/wR.png") if Game.whiteToMove else load("res://pieces/bR.png"))
+		#changePieceTexture(currentmove.getEnd(), text)
+	#if currentmove.getFlag() == move.Flags.BISHOP_PROMOTE:
+		#var text = (load("res://pieces/wB.png") if Game.whiteToMove else load("res://pieces/bB.png"))
+		#changePieceTexture(currentmove.getEnd(), text)
+	#if currentmove.getFlag() == move.Flags.KNIGHT_PROMOTE:
+		#var text = (load("res://pieces/wN.png") if Game.whiteToMove else load("res://pieces/bN.png"))
+		#changePieceTexture(currentmove.getEnd(), text)
+
+		
 	changeSquareColor(currentmove.getEnd(), Color("#edda2d"))
 	changeSquareColor(currentmove.getStart(), Color("#edda2d"))
 	
@@ -218,6 +225,14 @@ func placeAt(type : String, number : int):
 	piece.global_position = coordinates
 	piece.update()
 
+func returnPromotion():
+	print("promoting")
+	$PromotionChoice.visible = true
+	await promotionChosen == true
+	$PromotionChoice.visible = false
+	return promotionChoice
+
+
 func capturePieceAt(number : int):
 	for i in $PieceGrid.get_children():
 		i.deleteAtSquare(number)
@@ -234,6 +249,10 @@ func _on_line_edit_text_submitted(new_text: String) -> void:
 func movePieceFrom(square : int, square2 : int, really : bool = false, tween : bool = false):
 	for i in $PieceGrid.get_children():
 		i.movePieceFrom(square, square2, really, tween)
+		
+func changePieceTexture(square : int,text : Texture):
+	for i in $PieceGrid.get_children():
+		i.changeTexture(square, text)
 
 func changeSquareColor(square : int, newcolor : Color):
 	squares[square].color = squares[square].color.lerp(newcolor, 0.5)
@@ -278,12 +297,16 @@ func attackOverlay():
 
 func _on_queen_pressed() -> void:
 	promotionChoice = "Q" if Game.whiteToMove else "q"
+	promotionChosen = true
 
 func _on_rook_pressed() -> void:
 	promotionChoice = "R" if Game.whiteToMove else "r"
+	promotionChosen = true
 
 func _on_bishop_pressed() -> void:
 	promotionChoice = "B" if Game.whiteToMove else "b"
+	promotionChosen = true
 
 func _on_knight_pressed() -> void:
 	promotionChoice = "N" if Game.whiteToMove else "n"
+	promotionChosen = true

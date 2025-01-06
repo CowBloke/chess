@@ -151,7 +151,7 @@ func GeneratePawnMoves(white : bool):
 			if board[i-16] == "" and rank(i) == 6:
 				moves.append(returnMove(i, i-16, white))
 		
-		if isEnemyPiece(board[i-9], white) and not file(i-9) == 0:
+		if isEnemyPiece(board[i-9], white) and not file(i) == 0:
 			if rank(i-9) == 0: # If promotion
 				moves.append(returnMove(i, i-9, white, move.Flags.QUEEN_PROMOTE))
 				moves.append(returnMove(i, i-9, white, move.Flags.KNIGHT_PROMOTE))
@@ -160,7 +160,7 @@ func GeneratePawnMoves(white : bool):
 			else:
 				moves.append(returnMove(i, i-9, white))
 			
-		if isEnemyPiece(board[i-7], white) and not file(i-7) == 0:
+		if isEnemyPiece(board[i-7], white) and not file(i) == 7:
 			if rank(i-7) == 0: # If promotion
 				moves.append(returnMove(i, i-7, white, move.Flags.QUEEN_PROMOTE))
 				moves.append(returnMove(i, i-7, white, move.Flags.KNIGHT_PROMOTE))

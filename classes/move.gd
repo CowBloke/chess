@@ -8,7 +8,8 @@ func getEnd():
 	return (movedata >> 4) & 0b111111
 func getFlag():
 	return flaglist[movedata & 0b1111]
-
+func isPromotion():
+	return flaglist[movedata & 0b1111] in range(3,7)
 
 
 var flaglist = [Flags.NONE,Flags.ENPASSANT,Flags.CASTLING,Flags.QUEEN_PROMOTE,Flags.KNIGHT_PROMOTE,Flags.BISHOP_PROMOTE,Flags.ROOK_PROMOTE]

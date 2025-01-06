@@ -3,11 +3,14 @@ extends Node
 var moves : Array[move]
 var board : Array
 var whiteToMove : bool = true
+var wPlayer : String = "firstbot"
+var bPlayer : String = "firstbot"
 
-var whiteCastleQueenSide = true
-var whiteCastleKingSide = true
-var blackCastleQueenSide = true
-var blackCastleKingSide = true
+
+var whiteCastleQueenSide = false
+var whiteCastleKingSide = false
+var blackCastleQueenSide = false
+var blackCastleKingSide = false
 
 var white_pawns = 0xff00
 var white_rooks = 0x81
@@ -30,6 +33,7 @@ var empty_squares = ~all_pieces
 
 
 var defaultBoard = ["r", "n", "b", "q", "k", "b", "n", "r", "p", "p", "p", "p", "p", "p", "p", "p", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "P", "P", "P", "P", "P", "P", "P", "P", "R", "N", "B", "Q", "K", "B", "N", "R"]
+var startingPos = "rqb2rk1/1p2bppp/p1np1n2/4p1B1/2B1P3/2N2N2/PP2QPPP/R2R2K1"
 
 var gameStates = []
 
@@ -37,8 +41,10 @@ var Board
 
 func _ready() -> void:
 	Board = get_tree().root.get_child(1)
-	gameStates.append({"board" : defaultBoard, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
-
+	if startingPos == "default":
+		gameStates.append({"board" : defaultBoard, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
+	else:
+		gameStates.append({"board" : board, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
 func makeMove(Move : move, really : bool = true):
 	var startSquare = Move.getStart()
 	var endSquare = Move.getEnd()

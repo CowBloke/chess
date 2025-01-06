@@ -1,7 +1,7 @@
 extends Node
 
 var logic : Node
-var bestMove : move
+var bestMove : move = move.new()
 
 const pawnTable = [0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25, 25, 10,  5,  5,0,  0,  0, 20, 20,  0,  0,  0,5, -5,-10,  0,  0,-10, -5,  5,5, 10, 10,-20,-20, 10, 10,  5,0,  0,  0,  0,  0,  0,  0,  0]
 const knightTable = [-20,-10,-10,-10,-10,-10,-10,-20,-10,0,0,0,0,0,  0,-10,-10,  0,  5, 10, 10,  5,  0,-10,-10,  5,  5, 10, 10,  5,  5,-10,-10,  0, 10, 10, 10, 10,  0,-10,-10, 10, 10, 10, 10, 10, 10,-10,-10,  5,  0,  0,  0,  0,  5,-10,-20,-10,-10,-10,-10,-10,-10,-20]
@@ -17,13 +17,10 @@ func returnMove(logicNode : Node):
 	var thread = Thread.new()
 	thread.start(startSearch)
 	thread.wait_to_finish()
-	Game.makeMove(bestMove, false)
-	print(evaluate())
-	Game.unmakeMove(bestMove)
 	return bestMove
 
 func startSearch():
-	Search(3, -INF, INF, true)
+	Search(3 , -1000000, 1000000, true)
 
 const pawnValue = 100
 const knightValue = 300
@@ -40,15 +37,17 @@ func evaluate():
 func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 	if depth == 0:
 		return evaluate()
-	var moves = logic.GenerateLegalMoves(Game.whiteToMove)
+	var moves = orderMoves(logic.GenerateLegalMoves(Game.whiteToMove))
 
 	if len(moves) == 0:
-		return -INF  # Checkmate or stalemate
+		return -1000000  # Checkmate or stalemate
 
-	var maxEval = -INF
+	var maxEval = -1000000
 	for move_ in moves:
+		if bestMove == null:
+			bestMove = move_
 		Game.makeMove(move_, false)
-		var result = -Search(depth - 1, -alpha, -beta, false)
+		var result = -Search(depth - 1, -beta, -alpha, false)
 		Game.unmakeMove(move_)
 		if result > maxEval:
 			if isRoot:
@@ -99,6 +98,46 @@ func countMaterial(white : bool):
 				sum += kingtable[i]
 	return sum
 
+func moveOrderingScores(moves : Array[move]) -> Array:
+	var board = Game.board.duplicate()
+	var moveScores = []
+	var pieceValueTable = {"q":queenValue, "r":rookValue, "b":bishopValue, "n":knightValue, "p":pawnValue, "k":1000}
+	for i in moves:
+		var pieceScore = 0
+		if not board[i.getEnd()] == "":
+			var pieceDifference = pieceValueTable[board[i.getEnd()].to_lower()] - pieceValueTable[board[i.getStart()].to_lower()]
+			if pieceDifference >= 0 :
+				pieceScore += pieceDifference
+		if i.isPromotion():
+			match i.getFlag():
+				move.Flags.QUEEN_PROMOTE:
+					pieceScore += queenValue
+				move.Flags.ROOK_PROMOTE:
+					pieceScore += rookTable
+				move.Flags.BISHOP_PROMOTE:
+					pieceScore += bishopTable
+				move.Flags.KNIGHT_PROMOTE:
+					pieceScore += knightTable
+		moveScores.append(pieceScore)
+	return moveScores
+
+func orderMoves(moves : Array[move]) -> Array[move]:
+	var movelist = moves.duplicate()
+	var moveScores = moveOrderingScores(movelist)
+	for i in range(len(moves)-1):
+		var j = i+1
+		while j > 0:
+			j -= 1
+			var swapidx = j-1
+			if moveScores[swapidx] < moveScores[j]:
+				var temp = moves[j]
+				moves[j] = moves[swapidx]
+				moves[swapidx] = temp
+				temp = moveScores[j]
+				moveScores[j] = moveScores[swapidx]
+				moveScores[swapidx] = temp
+	return movelist
+	
 
 
 	
