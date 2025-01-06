@@ -23,7 +23,7 @@ func returnMove(logicNode : Node):
 	return bestMove
 
 func startSearch():
-	Search(3, true)
+	Search(3, -INF, INF, true)
 
 const pawnValue = 100
 const knightValue = 300
@@ -36,11 +36,8 @@ func evaluate():
 	var blackMaterial = countMaterial(false)
 	return (whiteMaterial - blackMaterial) * (-1 if Game.whiteToMove else 1)
 
-func _ready() -> void:
-	while true:
-		print(evaluate())
 
-func Search(depth: int, isRoot : bool) -> int:
+func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 	if depth == 0:
 		return evaluate()
 	var moves = logic.GenerateLegalMoves(Game.whiteToMove)
@@ -51,14 +48,18 @@ func Search(depth: int, isRoot : bool) -> int:
 	var maxEval = -INF
 	for move_ in moves:
 		Game.makeMove(move_, false)
-		var result = -Search(depth - 1, false)
+		var result = -Search(depth - 1, -alpha, -beta, false)
 		Game.unmakeMove(move_)
-
 		if result > maxEval:
 			if isRoot:
 				bestMove = move_
 			maxEval = result
-	return maxEval
+		if maxEval > alpha:
+			alpha = maxEval
+		if maxEval >= beta:
+			return alpha
+		
+	return alpha
 
 
 func countMaterial(white : bool):
