@@ -63,7 +63,7 @@ func madeMove():
 			$Result.show()
 		else:
 			await get_tree().create_timer(0.2).timeout
-			var botMove : move = bot2.returnMove($BasicLogic) if Game.whiteToMove else bot.returnMove($BasicLogic)
+			var botMove : move = bot.returnMove($BasicLogic) if Game.whiteToMove else bot2.returnMove($BasicLogic)
 			await get_tree().create_timer(0.2).timeout
 			movePieceFrom(botMove.getStart(), botMove.getEnd(), false, true)
 			await get_tree().create_timer(0.1).timeout

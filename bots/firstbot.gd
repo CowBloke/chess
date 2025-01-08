@@ -104,7 +104,7 @@ func moveOrderingScores(moves : Array[move]) -> Array:
 	var pieceValueTable = {"q":queenValue, "r":rookValue, "b":bishopValue, "n":knightValue, "p":pawnValue, "k":1000}
 	for i in moves:
 		var pieceScore = 0
-		if not board[i.getEnd()] == "":
+		if not board[i.getEnd()] == "":	
 			var pieceDifference = pieceValueTable[board[i.getEnd()].to_lower()] - pieceValueTable[board[i.getStart()].to_lower()]
 			if pieceDifference >= 0 :
 				pieceScore += pieceDifference

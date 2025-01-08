@@ -3,7 +3,7 @@ extends Node
 var moves : Array[move]
 var board : Array
 var whiteToMove : bool = true
-var wPlayer : String = "firstbot"
+var wPlayer : String = "Human"
 var bPlayer : String = "firstbot"
 
 
@@ -21,7 +21,7 @@ var white_king = 0x10
 var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
 
 var black_pawns = 0xff000000000000
-var black_rooks = 0x8100000000000000
+var black_rooks = 0x81000000000000
 var black_knights = 0x4200000000000000
 var black_bishops = 0x2400000000000000
 var black_queen = 0x800000000000000
