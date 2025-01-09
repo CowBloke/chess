@@ -83,3 +83,4 @@ text = "Ai vs Ai"
 expand_icon = true
 
 [connection signal="pressed" from="AI" to="." method="_on_ai_pressed"]
+[connection signal="pressed" from="AI vs AI" to="." method="_on_ai_vs_ai_pressed"]

@@ -178,7 +178,6 @@ text = "Attack Squares"
 expand_icon = true
 
 [node name="Pieces" type="CheckButton" parent="."]
-visible = false
 layout_mode = 0
 offset_left = 623.0
 offset_top = 143.0

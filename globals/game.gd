@@ -7,10 +7,13 @@ var wPlayer : String = "Human"
 var bPlayer : String = "firstbot"
 
 
-var whiteCastleQueenSide = false
 var whiteCastleKingSide = false
-var blackCastleQueenSide = false
+var whiteCastleQueenSide = false
 var blackCastleKingSide = false
+var blackCastleQueenSide = false
+
+var castleState = 0b1111
+var castleMasks = [0b0111, 0b1011, 0b1101, 0b1110]
 
 var white_pawns = 0xff00
 var white_rooks = 0x81
@@ -35,16 +38,44 @@ var empty_squares = ~all_pieces
 var defaultBoard = ["r", "n", "b", "q", "k", "b", "n", "r", "p", "p", "p", "p", "p", "p", "p", "p", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "P", "P", "P", "P", "P", "P", "P", "P", "R", "N", "B", "Q", "K", "B", "N", "R"]
 var startingPos = "rqb2rk1/1p2bppp/p1np1n2/4p1B1/2B1P3/2N2N2/PP2QPPP/R2R2K1"
 
+var startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 var gameStates = []
 
 var Board
 
 func _ready() -> void:
+	parseFen(startingFen)
 	Board = get_tree().root.get_child(1)
 	if startingPos == "default":
 		gameStates.append({"board" : defaultBoard, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
 	else:
 		gameStates.append({"board" : board, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
+
+func parseFen(fen : String) -> void:
+	var parsed = fen.split(" ")
+	# Board
+	print(parsed)
+	startingPos = parsed[0]
+	# Who to play
+	whiteToMove = parsed[1] == "w"
+	# Castling rights
+	castleState = 0b0
+	if "K" in parsed[1]:
+		castleState | (0b1 << 3)
+	if "Q" in parsed[1]:
+		castleState | (0b1 << 2)
+	if "k" in parsed[1]:
+		castleState | (0b1 << 1)
+	if "q" in parsed[1]:
+		castleState | (0b1)
+	# En passant
+	
+	
+	# Half moves
+	
+	
+
 func makeMove(Move : move, really : bool = true):
 	var startSquare = Move.getStart()
 	var endSquare = Move.getEnd()
@@ -73,22 +104,20 @@ func makeMove(Move : move, really : bool = true):
 			board[0] = ""
 	if whiteCastleKingSide:
 		if startSquare == 63:
-			whiteCastleKingSide = false
+			castleState & castleMasks[0]
 	if whiteCastleQueenSide:
 		if startSquare == 56:
-			whiteCastleQueenSide = false
+			castleState & castleMasks[1]
 	if blackCastleKingSide:
 		if startSquare == 7:
-			blackCastleKingSide = false
+			castleState & castleMasks[2]
 	if blackCastleQueenSide:
 		if startSquare == 0:
-			blackCastleQueenSide = false
+			castleState & castleMasks[3]
 	if startSquare == 60:
-		whiteCastleKingSide = false
-		whiteCastleQueenSide = false
+		castleState & castleMasks[0] & castleMasks[1]
 	if startSquare == 4:
-		blackCastleKingSide = false
-		blackCastleQueenSide = false
+		castleState & castleMasks[2] & castleMasks[3]
 	Game.whiteToMove = not Game.whiteToMove
 	moves.append(Move)
 	var newBoard = board.duplicate()

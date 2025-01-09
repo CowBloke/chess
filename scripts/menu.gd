@@ -7,3 +7,10 @@ func _on_ai_pressed():
 	Game.bPlayer = "Human"
 	Game.startingPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 	get_tree().change_scene_to_file("res://scenes/board.tscn")
+
+
+func _on_ai_vs_ai_pressed():
+	Game.wPlayer = "Human"
+	Game.bPlayer = "firstbot"
+	Game.startingPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+	get_tree().change_scene_to_file("res://scenes/board.tscn")
