@@ -37,28 +37,35 @@ func evaluate():
 func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 	if depth == 0:
 		return evaluate()
-	var moves = orderMoves(logic.GenerateLegalMoves(Game.whiteToMove))
+	var moves = orderMoves(logic.GenerateMoves(Game.whiteToMove))
 
 	if len(moves) == 0:
 		return -1000000  # Checkmate or stalemate
 
 	var maxEval = -1000000
+	var legal_yet = false
 	for move_ in moves:
-		if bestMove == null:
-			bestMove = move_
-		Game.makeMove(move_, false)
-		var result = -Search(depth - 1, -beta, -alpha, false)
-		Game.unmakeMove(move_)
-		if result > maxEval:
-			if isRoot:
+		if logic.isLegalMove(move_):
+			legal_yet = true
+			if bestMove == null:
 				bestMove = move_
-			maxEval = result
-		if maxEval > alpha:
-			alpha = maxEval
-		if maxEval >= beta:
-			return alpha
-		
-	return alpha
+			Game.makeMove(move_, false)
+			var result = -Search(depth - 1, -beta, -alpha, false)
+			Game.unmakeMove(move_)
+			if result > maxEval:
+				if isRoot:
+					bestMove = move_
+				maxEval = result
+			if maxEval > alpha:
+				alpha = maxEval
+			if maxEval >= beta:
+				return alpha
+		else:
+			pass
+	if legal_yet == false:
+		return -100000
+	else:
+		return alpha
 
 
 func countMaterial(white : bool):

@@ -117,6 +117,17 @@ func isCheckmate(white : bool):
 	else:
 		return false
 
+func isLegalMove(move_ : move, white):
+	Game.makeMove(move_, false)
+	var current_moves = GenerateMoves(not white)
+	createPieceLists(white)
+	for j in current_moves:
+		if j.getEnd() == Game.board.find("K" if white else "k"):
+			Game.unmakeMove(move_)
+			return false
+	Game.unmakeMove(move_)
+	return true
+
 func GenerateLegalMoves(white):
 	var base_moves = GenerateMoves(white)
 	var legal_moves = base_moves.duplicate()
