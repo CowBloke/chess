@@ -138,8 +138,7 @@ func GenerateLegalMoves(white):
 		createPieceLists(white)
 		for j in current_moves:
 			if j.getEnd() == Game.board.find("K" if white else "k"):
-				legal_moves.remove_at(legal_moves.find(base_moves[i]))
-				break
+				legal_moves.erase(base_moves[i])
 		Game.unmakeMove(base_moves[i])
 	return legal_moves
 
@@ -236,17 +235,17 @@ func GenerateKingMoves(white : bool):
 			if isEnemyPiece(board[getMoveDisplacement(king, j[0], j[1])], white) or (board[getMoveDisplacement(king, j[0], j[1])] == ""):
 				moves.append(returnMove(king, getMoveDisplacement(king, j[0], j[1]), white))
 		if white:
-			if Game.whiteCastleKingSide:
+			if not Game.castleState & (~Game.castleMasks[0]) == 0:
 				if board[king+1] == "" and board[king+2] == "":
 					moves.append(returnMove(king, king+2, white, move.Flags.CASTLING))
-			if Game.whiteCastleQueenSide:
+			if not Game.castleState & (~Game.castleMasks[1]) == 0:
 				if board[king-1] == "" and board[king-2] == "" and board[king-3] == "":
 					moves.append(returnMove(king, king-2, white, move.Flags.CASTLING))
 		else:
-			if Game.blackCastleKingSide:
+			if not Game.castleState & (~Game.castleMasks[2]) == 0:
 				if board[king-1] == "" and board[king-2] == "":
 					moves.append(returnMove(king, king-2, white, move.Flags.CASTLING))
-			if Game.blackCastleQueenSide:
+			if not Game.castleState & (~Game.castleMasks[3]) == 0:
 				if board[king+1] == "" and board[king+2] == "" and board[king+3] == "":
 					moves.append(returnMove(king, king+2, white, move.Flags.CASTLING))
 

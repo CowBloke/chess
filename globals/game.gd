@@ -7,10 +7,10 @@ var wPlayer : String = "Human"
 var bPlayer : String = "firstbot"
 
 
-var whiteCastleQueenSide = false
-var whiteCastleKingSide = false
-var blackCastleQueenSide = false
-var blackCastleKingSide = false
+var whiteCastleQueenSide = true
+var whiteCastleKingSide = true
+var blackCastleQueenSide = true
+var blackCastleKingSide = true
 
 var white_pawns = 0xff00
 var white_rooks = 0x81
@@ -32,26 +32,38 @@ var all_pieces = white_pieces|black_pieces
 var empty_squares = ~all_pieces
 
 var w_attack_squares = 0b0
-
+var castleState = 0b1111
+var castleMasks = [0b0111, 0b1011, 0b1101, 0b1110]
 
 var defaultBoard = ["r", "n", "b", "q", "k", "b", "n", "r", "p", "p", "p", "p", "p", "p", "p", "p", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "P", "P", "P", "P", "P", "P", "P", "P", "R", "N", "B", "Q", "K", "B", "N", "R"]
-var startingPos = "rqb2rk1/1p2bppp/p1np1n2/4p1B1/2B1P3/2N2N2/PP2QPPP/R2R2K1"
+var startingPos = "rn1qkb1r/1pp1pppp/p4n2/3p1b2/3P4/2P2NP1/PP2PP1P/RNBQKB1R w KQkq - 0 1"
+var startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 var gameStates = []
 
 var Board
 
-func _ready() -> void:
+var captureCount = 0
+
+func setup() -> void:
 	Board = get_tree().root.get_child(1)
 	if startingPos == "default":
-		gameStates.append({"board" : defaultBoard, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
+		parseFen(startingFen)
+		gameStates.append({"board" : board.duplicate(), "castleState" : castleState})
 	else:
-		gameStates.append({"board" : board, "castleStates" : [whiteCastleKingSide, whiteCastleQueenSide, blackCastleKingSide, blackCastleQueenSide]})
+		parseFen(startingPos)
+		gameStates.append({"board" : board.duplicate(), "castleState" : castleState})
 	
 
 func makeMove(Move : move, actual_move : bool = true):
 	var startSquare = Move.getStart()
 	var endSquare = Move.getEnd()
+	captureCount += 1 # 50 captureless move rule
+	if not board[endSquare] == "":
+		captureCount = 0
+	else:
+		if captureCount == 50:
+			return
 	board[endSquare] = board[startSquare]
 	board[startSquare] = ""
 	if Move.getFlag() == move.Flags.KNIGHT_PROMOTE:
@@ -77,38 +89,69 @@ func makeMove(Move : move, actual_move : bool = true):
 			board[0] = ""
 	if whiteCastleKingSide:
 		if startSquare == 63:
-			whiteCastleKingSide = false
+			castleState & castleMasks[0]
 	if whiteCastleQueenSide:
 		if startSquare == 56:
-			whiteCastleQueenSide = false
+			castleState & castleMasks[1]
 	if blackCastleKingSide:
 		if startSquare == 7:
-			blackCastleKingSide = false
+			castleState & castleMasks[2]
 	if blackCastleQueenSide:
 		if startSquare == 0:
-			blackCastleQueenSide = false
+			castleState & castleMasks[3]
 	if startSquare == 60:
-		whiteCastleKingSide = false
-		whiteCastleQueenSide = false
+		castleState & castleMasks[0]
+		castleState & castleMasks[1]
 	if startSquare == 4:
-		blackCastleKingSide = false
-		blackCastleQueenSide = false
+		castleState & castleMasks[2]
+		castleState & castleMasks[3]
 	Game.whiteToMove = not Game.whiteToMove
 	moves.append(Move)
 	var newBoard = board.duplicate()
-	gameStates.append({"board" : newBoard, "castleState" : castle})
+	gameStates.append({"board" : newBoard, "castleState" : castleState})
 	if actual_move == true:
 		get_tree().root.get_child(1).madeMove()
 
 func unmakeMove(Move : move):
+	if captureCount > 0:
+		captureCount -= 1
 	gameStates.pop_back()
 	moves.pop_back()
 	board = gameStates.back()["board"].duplicate()
-	whiteCastleKingSide = gameStates.back()["castleStates"][0]
-	whiteCastleQueenSide = gameStates.back()["castleStates"][1]
-	blackCastleKingSide = gameStates.back()["castleStates"][2]
-	blackCastleQueenSide = gameStates.back()["castleStates"][3]
-	
+	castleState = gameStates.back()["castleState"]
 	Game.whiteToMove = not Game.whiteToMove
 	
+func parseFen(fen : String) -> void:
+	var parsed = fen.split(" ")
+	# Board
+	for i in range(64):
+		board.append("")
+	startingPos = parsed[0]
+	var currentpiece = 0
+	var lines = startingPos.split("/")
+	print(lines)
+	for i in lines:
+		var letters = i.split() if len(i) > 1 else i
+		for j in letters:
+			if j.is_valid_int():
+				currentpiece += int(j)
+			else:
+				board[currentpiece] = j
+				currentpiece += 1
+	print(currentpiece)
+	# Who to play
+	whiteToMove = parsed[1] == "w"
+	# Castling rights
+	castleState = 0b0
+	if "K" in parsed[1]:
+		castleState | (0b1 << 3)
+	if "Q" in parsed[1]:
+		castleState | (0b1 << 2)
+	if "k" in parsed[1]:
+		castleState | (0b1 << 1)
+	if "q" in parsed[1]:
+		castleState | (0b1)
+	# En passant
 	
+	
+	# Half moves

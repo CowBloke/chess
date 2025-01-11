@@ -45,7 +45,7 @@ func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 	var maxEval = -1000000
 	var legal_yet = false
 	for move_ in moves:
-		if logic.isLegalMove(move_):
+		if logic.isLegalMove(move_, Game.whiteToMove):
 			legal_yet = true
 			if bestMove == null:
 				bestMove = move_
@@ -120,11 +120,11 @@ func moveOrderingScores(moves : Array[move]) -> Array:
 				move.Flags.QUEEN_PROMOTE:
 					pieceScore += queenValue
 				move.Flags.ROOK_PROMOTE:
-					pieceScore += rookTable
+					pieceScore += rookValue
 				move.Flags.BISHOP_PROMOTE:
-					pieceScore += bishopTable
+					pieceScore += bishopValue
 				move.Flags.KNIGHT_PROMOTE:
-					pieceScore += knightTable
+					pieceScore += knightValue
 		moveScores.append(pieceScore)
 	return moveScores
 

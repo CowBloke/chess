@@ -16,6 +16,7 @@ func _gui_input(event):
 		move_to_front()
 
 	elif event is InputEventMouseButton and not event.pressed:
+		
 		processMove()
 
 func processMove():
@@ -41,6 +42,11 @@ func processMove():
 			
 			root.hideMovesForPiece(GetSquareNb(originalPos))
 			
+			if not Game.board[moveData.getEnd()] == "":
+				var piece = root.searchForPieceAt(moveData.getEnd())
+				if not piece == null and not piece == self:
+					piece.deleteAtSquare()
+			
 			if moveData.getFlag() == move.Flags.KNIGHT_PROMOTE or moveData.getFlag() == move.Flags.BISHOP_PROMOTE or moveData.getFlag() == move.Flags.ROOK_PROMOTE or moveData.getFlag() == move.Flags.QUEEN_PROMOTE:
 				if (Game.wPlayer if Game.whiteToMove else Game.bPlayer) == "Human":
 					#var chosenPromotion = root.returnPromotion().lower()
@@ -48,9 +54,9 @@ func processMove():
 					#moveData.movedata = (moveData.movedata >> 4 << 4 )|promotiontable[chosenPromotion]
 					texture = load("res://pieces/wQ.png")
 					
-					
-			root.processMove(moveData)
 			originalPos = global_position
+			root.processMove(moveData)
+			
 
 func GetSquareNb(pos : Vector2):
 	pos = snap_to_grid(pos)
@@ -64,23 +70,23 @@ func returnSquareFromNumber(square : int):
 	pos.y += floor(square / 8) * 50
 	return pos
 
-func deleteAtSquare(number : int):
-	if number == GetSquareNb(originalPos):
-		hide()
-		
+func deleteAtSquare():
+	hide()
+
 func changeTexture(number : int, texture : Texture):
 	if number == GetSquareNb(global_position):
 		texture = texture
 	
-func movePieceFrom(number : int, number2 : int, _keepGlobalPos = false, tween : bool = false):
-	if GetSquareNb(global_position) == number:
-		if _keepGlobalPos:
-			originalPos = returnSquareFromNumber(number2)
-		if tween:
-			var tween_ = create_tween()
-			tween_.tween_property(self, "global_position", returnSquareFromNumber(number2), 0.1)
-		else:
-			global_position = returnSquareFromNumber(number2)
+func movePieceFrom(number : int, _keepGlobalPos = false, tween : bool = false):
+	if _keepGlobalPos:
+		originalPos = returnSquareFromNumber(number)
+	if tween:
+		var tween_ = create_tween()
+		tween_.tween_property(self, "global_position", returnSquareFromNumber(number), 0.1)
+		await tween_.finished
+		await get_tree().create_timer(0).timeout
+	else:
+		global_position = returnSquareFromNumber(number)
 		
 		
 

@@ -25,15 +25,13 @@ var checkSound
 var castleSound
 
 func _ready() -> void:
-	for i in range(64):
-		Game.board.append("")
 	createBoard()
 	moveSound = $Sounds/Move
 	captureSound = $Sounds/Capture
 	checkSound = $Sounds/Check
 	castleSound = $Sounds/Castle
 	loadBots()
-	loadFromFen(Game.startingPos)
+	loadPieces()
 	await get_tree().create_timer(0.5).timeout
 	#for i in range(4):
 		#var ms = Time.get_ticks_msec()
@@ -56,19 +54,24 @@ func madeMove():
 	if len(Game.moves) > 0:
 		$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
 	if $BasicLogic.isCheckmate(not Game.whiteToMove):
-			$Result.text = "Checkmate Bot wins"
+			$Result.text = "Checkmate " + Game.bPlayer + " wins"
 			$Result.show()
+			return
+	if $BasicLogic.isCheckmate(Game.whiteToMove):
+			$Result.text = "Checkmate " + Game.wPlayer + " wins"
+			$Result.show()
+			return
+	
 	if not (Game.wPlayer if Game.whiteToMove else Game.bPlayer) == "Human": 
-		if $BasicLogic.isCheckmate(Game.whiteToMove):
-			$Result.show()
-		else:
-			await get_tree().create_timer(0.2).timeout
-			var botMove : move = bot.returnMove($BasicLogic) if Game.whiteToMove else bot2.returnMove($BasicLogic)
-			await get_tree().create_timer(0.2).timeout
-			movePieceFrom(botMove.getStart(), botMove.getEnd(), false, true)
+		if (Game.bPlayer if Game.whiteToMove else Game.wPlayer) == "Human":
 			await get_tree().create_timer(0.1).timeout
-			if not searchForPieceAt(botMove.getStart()) == null:
-				searchForPieceAt(botMove.getStart()).processMove()
+		await get_tree().create_timer(0).timeout
+		var botMove : move = bot.returnMove($BasicLogic) if Game.whiteToMove else bot2.returnMove($BasicLogic)
+		var piece = searchForPieceAt(botMove.getStart())
+		await piece.movePieceFrom(botMove.getEnd(), false, true)
+		await piece.processMove()
+		loadPieces()
+			
 		
 
 func createBoard() -> void:
@@ -110,25 +113,31 @@ func processMove(currentmove : move):
 	if not Game.board[currentmove.getEnd()] == "" or currentmove.getFlag() == move.Flags.ENPASSANT:
 		soundtype = "capture"
 		Game.board[currentmove.getEnd()] = ""
-		capturePieceAt(currentmove.getEnd())
+		var piece = searchForPieceAt(currentmove.getEnd())
 		if currentmove.getFlag() == move.Flags.ENPASSANT:
 			if floor(currentmove.getEnd() / 8) == 2:
-				capturePieceAt(currentmove.getEnd()+8)
+				piece = searchForPieceAt(currentmove.getEnd()+8)
+				piece.deleteAtSquare()
 			else:
-				capturePieceAt(currentmove.getEnd()-8)
+				piece = searchForPieceAt(currentmove.getEnd()-8)
+				piece.deleteAtSquare()
 	else:
 		if currentmove.getFlag() == move.Flags.CASTLING:
 			soundtype = "castle"
 			if currentmove.getStart() == 60: # For white castling
 				if currentmove.getEnd() == 62: # King Side
-					movePieceFrom(63, 61, true, true)
+					var piece = searchForPieceAt(63)
+					piece.movePieceFrom(61, true, true)
 				if currentmove.getEnd() == 58: # Queen Side
-					movePieceFrom(56, 59, true, true)
+					var piece = searchForPieceAt(56)
+					piece.movePieceFrom(59, true, true)
 			if currentmove.getStart() == 4: # For black castling
 				if currentmove.getEnd() == 6: # King Side
-					movePieceFrom(7, 5, true, true)
+					var piece = searchForPieceAt(7)
+					piece.movePieceFrom(5, true, true)
 				if currentmove.getEnd() == 2: # Queen Side
-					movePieceFrom(0, 3, true, true)
+					var piece = searchForPieceAt(0)
+					piece.movePieceFrom(3, true, true)
 		else:
 			soundtype = "move"
 	
@@ -197,19 +206,15 @@ func hideMovesForPiece(square : int):
 		if i.getStart() == square:
 			originalSquareColor(i.getEnd())
 
-func loadFromFen(fen_string : String):
+func loadPieces():
 	deleteAllPieces()
-	var currentpiece = 0
-	var lines = fen_string.split("/")
-	for i in lines:
-		var letters = i.split() if len(i) > 1 else i
-		for j in letters:
-			if j.is_valid_int():
-				currentpiece += int(j)
-			else:
-				placeAt(j, currentpiece)
-				Game.board[currentpiece] = j
-				currentpiece += 1
+	var currentpiece = -1
+	for i in Game.board:
+		currentpiece += 1
+		if i == "":
+			pass
+		else:
+			placeAt(i, currentpiece)
 
 func placeAt(type : String, number : int):
 	var coordinates = Vector2i(205 + ((number % 8)*50), 45 + (floor(number/8)*50))
@@ -239,24 +244,17 @@ func capturePieceAt(number : int):
 
 func searchForPieceAt(number : int):
 	for i in $PieceGrid.get_children():
-		if not i.returnPieceReference(number) == null:
-			return i.returnPieceReference(number)
+		var pieceref = i.returnPieceReference(number)
+		if not pieceref == null:
+			return pieceref
 	return null
 
 func _on_line_edit_text_submitted(new_text: String) -> void:
-	loadFromFen(new_text)
-
-func movePieceFrom(square : int, square2 : int, really : bool = false, tween : bool = false):
-	for i in $PieceGrid.get_children():
-		i.movePieceFrom(square, square2, really, tween)
-		
-func changePieceTexture(square : int,text : Texture):
-	for i in $PieceGrid.get_children():
-		i.changeTexture(square, text)
+	loadPieces()
 
 func changeSquareColor(square : int, newcolor : Color):
 	squares[square].color = squares[square].color.lerp(newcolor, 0.5)
-	
+
 func originalSquareColor(square : int):
 	squares[square].color = color_1 if squarecolors[square] == 0 else color_2
 
