@@ -43,8 +43,7 @@ var king : int
 
 func _ready() -> void:
 	calculatePrecomputedMoveData()
-	for i in range(4):
-		print(CountPossibleNodes(i+1))
+	var x1 = 0b0010101101000
 
 func calculatePrecomputedMoveData():
 	for rank in range(8):
@@ -73,7 +72,7 @@ func CountPossibleNodes(depth : int):
 	for i in moves:
 		Game.makeMove(i, false)
 		counter += CountPossibleNodes(depth - 1)
-		Game.unmakeMove(i)
+		Game.unmakeMove()
 	return counter
 
 
@@ -127,9 +126,9 @@ func isLegalMove(move_ : move, white):
 	createPieceLists(white)
 	for j in current_moves:
 		if j.getEnd() == Game.board.find(0b1110 if white else 0b0110):
-			Game.unmakeMove(move_)
+			Game.unmakeMove()
 			return false
-	Game.unmakeMove(move_)
+	Game.unmakeMove()
 	return true
 
 func GenerateLegalMoves(white : bool):
@@ -144,7 +143,7 @@ func GenerateLegalMoves(white : bool):
 		for j in current_moves:
 			if j.getEnd() == our_king:
 				legal_moves.erase(base_moves[i])
-		Game.unmakeMove(base_moves[i])
+		Game.unmakeMove()
 	#for i in base_moves:
 		#print(Game.convertNumberToSquare(i.getStart()) + " -> " + Game.convertNumberToSquare(i.getEnd()))
 	return legal_moves

@@ -279,11 +279,15 @@ func _process(delta: float) -> void:
 			clearOverlay()
 
 func pieceOverlay():
-	for i in range(len(overlays)):
-		if not Game.board[i] == 0:
+	var bitboard = Game.white_pieces
+	
+	for i in range(63):
+		if bitboard & -bitboard == 1:   # Gets the least significant bit and checks if == 0
 			overlays[i].color = Color("#0000ff5d")
 		else:
 			overlays[i].color = Color("#ff000000")
+		
+		bitboard >>= 1
 			
 func attackOverlay():
 	var attacks = $BasicLogic.GenerateAttackSquares(Game.whiteToMove)

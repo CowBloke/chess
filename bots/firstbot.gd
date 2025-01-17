@@ -20,7 +20,7 @@ func returnMove(logicNode : Node):
 	return bestMove
 
 func startSearch():
-	Search(4 , -1000000, 1000000, true)
+	Search(3 , -1000000, 1000000, true)
 
 const pawnValue = 100
 const knightValue = 300
@@ -51,7 +51,7 @@ func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 				bestMove = move_
 			Game.makeMove(move_, false)
 			var result = -Search(depth - 1, -beta, -alpha, false)
-			Game.unmakeMove(move_)
+			Game.unmakeMove()
 			if result > maxEval:
 				if isRoot:
 					bestMove = move_

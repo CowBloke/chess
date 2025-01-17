@@ -13,24 +13,26 @@ var whiteCastleKingSide = true
 var blackCastleQueenSide = true
 var blackCastleKingSide = true
 
-var white_pawns = 0xff00
-var white_rooks = 0x81
-var white_knights = 0x42
-var white_bishops = 0x24
-var white_queen = 0x8
-var white_king = 0x10
-var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queen | white_king
+var white_pawns = 0xff000000000000
+var white_rooks = 0x8100000000000000
+var white_knights = 0x4200000000000000
+var white_bishops = 0x2400000000000000
+var white_queens = 0x800000000000000
+var white_king = 0x1000000000000000
+var white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queens | white_king
 
-var black_pawns = 0xff000000000000
-var black_rooks = 0x81000000000000
-var black_knights = 0x4200000000000000
-var black_bishops = 0x2400000000000000
-var black_queen = 0x800000000000000
-var black_king = 0x1000000000000000
-var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queen | black_king
+var black_pawns = 0xff00
+var black_rooks = 0x81
+var black_knights = 0x42
+var black_bishops = 0x24
+var black_queens = 0x8
+var black_king = 0x10
+var black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queens | black_king
 
 var all_pieces = white_pieces|black_pieces
 var empty_squares = ~all_pieces
+
+var pieceTable = {0b0001:white_pawns,0b0010:white_knights,0b0011:white_bishops,0b0100:white_rooks,0b0101:white_queens,0b0110:white_king,0b1001:black_pawns,0b1010:black_knights,0b1011:black_bishops,0b1100:black_rooks,0b1101:black_queens,0b1110:black_king}
 
 var w_attack_squares = 0b0
 var castleState = 0b1111
@@ -59,12 +61,22 @@ func setup() -> void:
 func makeMove(Move : move, actual_move : bool = true):
 	var startSquare = Move.getStart()
 	var endSquare = Move.getEnd()
+	
+	var startPiece = board[startSquare]
+	
+	pieceTable[startPiece] ^= (0b1 << (63 - startSquare))
+	pieceTable[startPiece] ^= (0b1 << (63 - endSquare))
+	
+	updateBitboards()
+	
 	captureCount += 1 # 50 captureless move rule
+	
 	if not board[endSquare] == 0:
 		captureCount = 0
 	else:
 		if captureCount == 50:
 			return
+	
 	board[endSquare] = board[startSquare]
 	board[startSquare] = 0
 	if Move.getFlag() == move.Flags.KNIGHT_PROMOTE:
@@ -90,22 +102,22 @@ func makeMove(Move : move, actual_move : bool = true):
 			board[0] = 0
 	if whiteCastleKingSide:
 		if startSquare == 63:
-			castleState & castleMasks[0]
+			castleState &= castleMasks[0]
 	if whiteCastleQueenSide:
 		if startSquare == 56:
-			castleState & castleMasks[1]
+			castleState &= castleMasks[1]
 	if blackCastleKingSide:
 		if startSquare == 7:
-			castleState & castleMasks[2]
+			castleState &= castleMasks[2]
 	if blackCastleQueenSide:
 		if startSquare == 0:
-			castleState & castleMasks[3]
+			castleState &= castleMasks[3]
 	if startSquare == 60:
-		castleState & castleMasks[0]
-		castleState & castleMasks[1]
+		castleState &= castleMasks[0]
+		castleState &= castleMasks[1]
 	if startSquare == 4:
-		castleState & castleMasks[2]
-		castleState & castleMasks[3]
+		castleState &= castleMasks[2]
+		castleState &= castleMasks[3]
 	Game.whiteToMove = not Game.whiteToMove
 	moves.append(Move)
 	var newBoard = board.duplicate()
@@ -113,7 +125,7 @@ func makeMove(Move : move, actual_move : bool = true):
 	if actual_move == true:
 		get_tree().root.get_child(1).madeMove()
 
-func unmakeMove(Move : move):
+func unmakeMove():
 	if captureCount > 0:
 		captureCount -= 1
 	gameStates.pop_back()
@@ -147,20 +159,21 @@ func parseFen(fen : String) -> void:
 	# Castling rights
 	castleState = 0b0
 	if "K" in parsed[1]:
-		castleState | (0b1 << 3)
+		castleState |= (0b1 << 3)
 	if "Q" in parsed[1]:
-		castleState | (0b1 << 2)
+		castleState |= (0b1 << 2)
 	if "k" in parsed[1]:
-		castleState | (0b1 << 1)
+		castleState |= (0b1 << 1)
 	if "q" in parsed[1]:
-		castleState | (0b1)
+		castleState |= (0b1)
 	# En passant
-	
-	
 	# Half moves
 
-#func calculateAttackSquares(white : bool):
-	#
+func updateBitboards():
+	white_pieces = white_pawns | white_rooks | white_knights | white_bishops | white_queens | white_king
+	black_pieces = black_pawns | black_rooks | black_knights | black_bishops | black_queens | black_king
+	all_pieces = white_pieces|black_pieces
+	empty_squares = ~all_pieces
 
 func convertNumberToSquare(number : int):
 	var letters = ["a","b","c","d","e","f","g","h"]
