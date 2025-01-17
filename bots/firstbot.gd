@@ -20,7 +20,7 @@ func returnMove(logicNode : Node):
 	return bestMove
 
 func startSearch():
-	Search(3 , -1000000, 1000000, true)
+	Search(4 , -1000000, 1000000, true)
 
 const pawnValue = 100
 const knightValue = 300
@@ -31,7 +31,7 @@ const queenValue = 900
 func evaluate():
 	var whiteMaterial = countMaterial(true)
 	var blackMaterial = countMaterial(false)
-	return (whiteMaterial - blackMaterial) * (-1 if Game.whiteToMove else 1)
+	return (whiteMaterial - blackMaterial) * (1 if Game.whiteToMove else -1)
 
 
 func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
@@ -70,7 +70,7 @@ func Search(depth: int, alpha : int, beta : int, isRoot : bool) -> int:
 
 func countMaterial(white : bool):
 	var sum = 0
-	var b = Game.board
+	var b = Game.board.duplicate()
 	var pawntable = pawnTable.duplicate()
 	var knighttable = knightTable.duplicate()
 	var bishoptable = bishopTable.duplicate()
@@ -85,34 +85,35 @@ func countMaterial(white : bool):
 		queentable.reverse()
 		kingtable.reverse()
 	for i in len(b):
-		if not b[i] == "" and (b[i].to_lower() == b[i]) == white:
-			if b[i].to_lower() == "p": 
+		if isFriendlyPiece(b[i], white):
+			var piece = b[i] & 0b111
+			if piece == 0b001: 
 				sum += pawnValue
 				sum += pawntable[i]
-			if b[i].to_lower() == "n": 
+			if piece == 0b010: 
 				sum += knightValue
 				sum += knighttable[i]
-			if b[i].to_lower() == "b": 
+			if piece == 0b011: 
 				sum += bishopValue
 				sum += bishoptable[i]
-			if b[i].to_lower() == "r": 
+			if piece == 0b100: 
 				sum += rookValue
 				sum += rooktable[i]
-			if b[i].to_lower() == "q": 
+			if piece == 0b101: 
 				sum += queenValue
 				sum += queentable[i]
-			if b[i].to_lower() == "k": 
+			if piece == 0b110: 
 				sum += kingtable[i]
 	return sum
 
 func moveOrderingScores(moves : Array[move]) -> Array:
 	var board = Game.board.duplicate()
 	var moveScores = []
-	var pieceValueTable = {"q":queenValue, "r":rookValue, "b":bishopValue, "n":knightValue, "p":pawnValue, "k":1000}
+	var pieceValueTable = {0b101:queenValue, 0b100:rookValue, 0b011:bishopValue, 0b010:knightValue, 0b001:pawnValue, 0b110:1000}
 	for i in moves:
 		var pieceScore = 0
-		if not board[i.getEnd()] == "":	
-			var pieceDifference = pieceValueTable[board[i.getEnd()].to_lower()] - pieceValueTable[board[i.getStart()].to_lower()]
+		if not board[i.getEnd()] == 0:
+			var pieceDifference = pieceValueTable[board[i.getEnd()]& 0b111 ] - pieceValueTable[board[i.getStart()] & 0b111 ]
 			if pieceDifference >= 0 :
 				pieceScore += pieceDifference
 		if i.isPromotion():
@@ -146,5 +147,11 @@ func orderMoves(moves : Array[move]) -> Array[move]:
 	return movelist
 	
 
-
+func isFriendlyPiece(piece : int, white : bool) -> bool:
+	if piece == 0:
+		return false
+	if (piece >>3) == (1 if white else 0):
+		return true
+	else:
+		return false
 	

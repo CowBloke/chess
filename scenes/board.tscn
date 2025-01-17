@@ -178,6 +178,7 @@ text = "Attack Squares"
 expand_icon = true
 
 [node name="Pieces" type="CheckButton" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 623.0
 offset_top = 143.0
@@ -185,6 +186,7 @@ offset_right = 707.0
 offset_bottom = 168.0
 scale = Vector2(2, 2)
 theme_override_font_sizes/font_size = 7
+button_pressed = true
 text = "Pieces"
 expand_icon = true
 

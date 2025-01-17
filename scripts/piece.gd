@@ -28,12 +28,10 @@ func processMove():
 			if i.getStart() == GetSquareNb(originalPos) and i.getEnd() == nextSquare:
 				isSquareValid = true
 				moveData = i
-				
 				break
 		if not isSquareValid:
 			global_position = originalPos
 			showmoves = false
-			
 			root.hideMovesForPiece(GetSquareNb(originalPos))
 		else:
 			global_position = snap_to_grid(global_position)
@@ -42,7 +40,7 @@ func processMove():
 			
 			root.hideMovesForPiece(GetSquareNb(originalPos))
 			
-			if not Game.board[moveData.getEnd()] == "":
+			if not Game.board[moveData.getEnd()] == 0:
 				var piece = root.searchForPieceAt(moveData.getEnd())
 				if not piece == null and not piece == self:
 					piece.deleteAtSquare()
@@ -84,7 +82,6 @@ func movePieceFrom(number : int, _keepGlobalPos = false, tween : bool = false):
 		var tween_ = create_tween()
 		tween_.tween_property(self, "global_position", returnSquareFromNumber(number), 0.1)
 		await tween_.finished
-		await get_tree().create_timer(0).timeout
 	else:
 		global_position = returnSquareFromNumber(number)
 		

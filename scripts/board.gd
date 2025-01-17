@@ -17,7 +17,8 @@ var bot2 : Node
 
 var board = []
 
-#const pieceConversionTable = {"p": 0b0001,"n": 0b0010,"b": 0b0011, "r": 0b0100,"q": 0b0101,"k": 0b0110,"P": 0b1001,"N": 0b1010,"B": 0b1011, "R": 0b1100,"Q": 0b1101,"K": 0b1110}
+const pieceConversionTable = {"p": 0b0001,"n": 0b0010,"b": 0b0011, "r": 0b0100,"q": 0b0101,"k": 0b0110,"P": 0b1001,"N": 0b1010,"B": 0b1011, "R": 0b1100,"Q": 0b1101,"K": 0b1110}
+const reversepieceConversionTable = {0b0001: "p",0b0010: "n",0b0011: "b", 0b0100: "r",0b0101 : "q",0b0110: "k",0b1001: "P",0b1010: "N",0b1011: "B", 0b1100: "R", 0b1101:"Q",0b1110 : "K"}
 
 var moveSound
 var captureSound
@@ -52,7 +53,7 @@ func loadBots():
 			
 func madeMove():
 	if len(Game.moves) > 0:
-		$"Last Move".text = "Last move : " + convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
+		$"Last Move".text = "Last move : " + Game.convertNumberToSquare(Game.moves[len(Game.moves)-1].getStart()) + Game.convertNumberToSquare(Game.moves[len(Game.moves)-1].getEnd())
 	if $BasicLogic.isCheckmate(not Game.whiteToMove):
 			$Result.text = "Checkmate " + Game.bPlayer + " wins"
 			$Result.show()
@@ -110,9 +111,9 @@ func processMove(currentmove : move):
 		originalSquareColor(Game.moves[len(Game.moves)-1].getStart())
 		originalSquareColor(Game.moves[len(Game.moves)-1].getEnd())
 	
-	if not Game.board[currentmove.getEnd()] == "" or currentmove.getFlag() == move.Flags.ENPASSANT:
+	if not Game.board[currentmove.getEnd()] == 0 or currentmove.getFlag() == move.Flags.ENPASSANT:
 		soundtype = "capture"
-		Game.board[currentmove.getEnd()] = ""
+		Game.board[currentmove.getEnd()] = 0
 		var piece = searchForPieceAt(currentmove.getEnd())
 		if currentmove.getFlag() == move.Flags.ENPASSANT:
 			if floor(currentmove.getEnd() / 8) == 2:
@@ -199,7 +200,7 @@ func deleteAllPieces() -> void:
 func showMovesForPiece(square : int):
 	for i in $BasicLogic.GenerateLegalMoves(Game.whiteToMove):
 		if i.getStart() == square:
-			changeSquareColor(i.getEnd(), Color("#ff0000"))
+			changeSquareColor(i.getEnd(), Color("#F74328"))
 			
 func hideMovesForPiece(square : int):
 	for i in $BasicLogic.GenerateLegalMoves(Game.whiteToMove):
@@ -211,10 +212,10 @@ func loadPieces():
 	var currentpiece = -1
 	for i in Game.board:
 		currentpiece += 1
-		if i == "":
+		if i == 0:
 			pass
 		else:
-			placeAt(i, currentpiece)
+			placeAt(reversepieceConversionTable[i], currentpiece)
 
 func placeAt(type : String, number : int):
 	var coordinates = Vector2i(205 + ((number % 8)*50), 45 + (floor(number/8)*50))
@@ -258,9 +259,7 @@ func changeSquareColor(square : int, newcolor : Color):
 func originalSquareColor(square : int):
 	squares[square].color = color_1 if squarecolors[square] == 0 else color_2
 
-func convertNumberToSquare(number : int):
-	var letters = ["a","b","c","d","e","f","g","h"]
-	return letters[floor((63 - number)/8)] + str((63 - number)%8+1)
+
 
 
 
@@ -271,7 +270,7 @@ func clearOverlay():
 		i.color = Color("#ff000000")
 
 func _process(delta: float) -> void:
-	if len(overlays) == 64 and len(Game.board) == 64:
+	if len(overlays) == 64 and len (Game.board) == 64:
 		if $Attack.button_pressed:
 			attackOverlay()
 		elif $Pieces.button_pressed:
@@ -281,7 +280,7 @@ func _process(delta: float) -> void:
 
 func pieceOverlay():
 	for i in range(len(overlays)):
-		if not Game.board[i] == "":
+		if not Game.board[i] == 0:
 			overlays[i].color = Color("#0000ff5d")
 		else:
 			overlays[i].color = Color("#ff000000")

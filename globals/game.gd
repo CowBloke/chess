@@ -6,6 +6,7 @@ var whiteToMove : bool = true
 var wPlayer : String = "Human"
 var bPlayer : String = "firstbot"
 
+const pieceConversionTable = {"p": 0b0001,"n": 0b0010,"b": 0b0011, "r": 0b0100,"q": 0b0101,"k": 0b0110,"P": 0b1001,"N": 0b1010,"B": 0b1011, "R": 0b1100,"Q": 0b1101,"K": 0b1110}
 
 var whiteCastleQueenSide = true
 var whiteCastleKingSide = true
@@ -35,7 +36,7 @@ var w_attack_squares = 0b0
 var castleState = 0b1111
 var castleMasks = [0b0111, 0b1011, 0b1101, 0b1110]
 
-var defaultBoard = ["r", "n", "b", "q", "k", "b", "n", "r", "p", "p", "p", "p", "p", "p", "p", "p", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "P", "P", "P", "P", "P", "P", "P", "P", "R", "N", "B", "Q", "K", "B", "N", "R"]
+var defaultBoard = [4, 2, 3, 5, 6, 3, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 12, 10, 11, 13, 14, 11, 10, 12]
 var startingPos = "rn1qkb1r/1pp1pppp/p4n2/3p1b2/3P4/2P2NP1/PP2PP1P/RNBQKB1R w KQkq - 0 1"
 var startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -59,34 +60,34 @@ func makeMove(Move : move, actual_move : bool = true):
 	var startSquare = Move.getStart()
 	var endSquare = Move.getEnd()
 	captureCount += 1 # 50 captureless move rule
-	if not board[endSquare] == "":
+	if not board[endSquare] == 0:
 		captureCount = 0
 	else:
 		if captureCount == 50:
 			return
 	board[endSquare] = board[startSquare]
-	board[startSquare] = ""
+	board[startSquare] = 0
 	if Move.getFlag() == move.Flags.KNIGHT_PROMOTE:
-		board[endSquare] = "N" if whiteToMove else "n"
+		board[endSquare] = 0b1010 if whiteToMove else 0b0010
 	if Move.getFlag() == move.Flags.BISHOP_PROMOTE:
-		board[endSquare] = "B" if whiteToMove else "b"
+		board[endSquare] = 0b1011 if whiteToMove else 0b0011
 	if Move.getFlag() == move.Flags.ROOK_PROMOTE:
-		board[endSquare] = "R" if whiteToMove else "r"
+		board[endSquare] = 0b1100 if whiteToMove else 0b0100
 	if Move.getFlag() == move.Flags.QUEEN_PROMOTE:
-		board[endSquare] = "Q" if whiteToMove else "q"
+		board[endSquare] = 0b1101 if whiteToMove else 0b0101
 	if Move.getFlag() == move.Flags.CASTLING:
 		if endSquare == 62:
 			board[61] = board[63]
-			board[63] = ""
+			board[63] = 0
 		if endSquare == 58:
 			board[59] = board[56]
-			board[56] = ""
+			board[56] = 0
 		if endSquare == 6:
 			board[7] = board[5]
-			board[5] = ""
+			board[5] = 0
 		if endSquare == 2:
 			board[3] = board[0]
-			board[0] = ""
+			board[0] = 0
 	if whiteCastleKingSide:
 		if startSquare == 63:
 			castleState & castleMasks[0]
@@ -121,24 +122,26 @@ func unmakeMove(Move : move):
 	castleState = gameStates.back()["castleState"]
 	Game.whiteToMove = not Game.whiteToMove
 	
+	
+func initZobrist():
+	randomize()
+
 func parseFen(fen : String) -> void:
 	var parsed = fen.split(" ")
 	# Board
 	for i in range(64):
-		board.append("")
+		board.append(0)
 	startingPos = parsed[0]
 	var currentpiece = 0
 	var lines = startingPos.split("/")
-	print(lines)
 	for i in lines:
 		var letters = i.split() if len(i) > 1 else i
 		for j in letters:
 			if j.is_valid_int():
 				currentpiece += int(j)
 			else:
-				board[currentpiece] = j
+				board[currentpiece] = pieceConversionTable[j]
 				currentpiece += 1
-	print(currentpiece)
 	# Who to play
 	whiteToMove = parsed[1] == "w"
 	# Castling rights
@@ -155,3 +158,10 @@ func parseFen(fen : String) -> void:
 	
 	
 	# Half moves
+
+#func calculateAttackSquares(white : bool):
+	#
+
+func convertNumberToSquare(number : int):
+	var letters = ["a","b","c","d","e","f","g","h"]
+	return letters[floor((63 - number)/8)] + str((63 - number)%8+1)
