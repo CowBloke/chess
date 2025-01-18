@@ -14,7 +14,7 @@ var blackCastleQueenSide = true
 var blackCastleKingSide = true
 
 var white_pawns = 0xff000000000000
-var white_rooks = 0x8100000000000000
+var white_rooks = -0x100000000000000
 var white_knights = 0x4200000000000000
 var white_bishops = 0x2400000000000000
 var white_queens = 0x800000000000000
