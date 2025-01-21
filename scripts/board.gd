@@ -25,6 +25,9 @@ var captureSound
 var checkSound
 var castleSound
 
+var cs_instance = preload("res://scripts/Engine/GodotBridge.cs") as Script
+var cs = cs_instance.new()
+
 func _ready() -> void:
 	createBoard()
 	moveSound = $Sounds/Move
@@ -67,10 +70,11 @@ func madeMove():
 		if (Game.bPlayer if Game.whiteToMove else Game.wPlayer) == "Human":
 			await get_tree().create_timer(0.1).timeout
 		await get_tree().create_timer(0).timeout
-		var botMove : move = bot.returnMove($BasicLogic) if Game.whiteToMove else bot2.returnMove($BasicLogic)
-		var piece = searchForPieceAt(botMove.getStart())
-		await piece.movePieceFrom(botMove.getEnd(), false, true)
-		await piece.processMove()
+		
+		#var botMove : move = bot.returnMove($BasicLogic) if Game.whiteToMove else bot2.returnMove($BasicLogic)
+		#var piece = searchForPieceAt(botMove.getStart())
+		#await piece.movePieceFrom(botMove.getEnd(), false, true)
+		#await piece.processMove()
 		loadPieces()
 			
 		
@@ -198,7 +202,8 @@ func deleteAllPieces() -> void:
 		i.queue_free()
 
 func showMovesForPiece(square : int):
-	for i in $BasicLogic.GenerateLegalMoves(Game.whiteToMove):
+	print($CSEngine.call("GetMoves"))
+	for i in $CSEngine.call("GetMoves"):
 		if i.getStart() == square:
 			changeSquareColor(i.getEnd(), Color("#F74328"))
 			

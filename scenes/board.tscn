@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://nu70trbhcl44"]
+[gd_scene load_steps=12 format=3 uid="uid://nu70trbhcl44"]
 
 [ext_resource type="Script" path="res://scripts/board.gd" id="1_yc2dg"]
 [ext_resource type="AudioStream" uid="uid://q3arq0lyx12d" path="res://sounds/move-self.mp3" id="2_yinrl"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://de0wv1gkcms1r" path="res://pieces/wR.png" id="8_vvogp"]
 [ext_resource type="Texture2D" uid="uid://b78svxmh2pwon" path="res://pieces/wB.png" id="9_cbyqu"]
 [ext_resource type="Texture2D" uid="uid://cp2xcq315jqlg" path="res://pieces/wN.png" id="10_drlma"]
+[ext_resource type="Script" path="res://scripts/Engine/GodotBridge.cs" id="11_i2wol"]
 
 [node name="Board" type="Control"]
 layout_mode = 3
@@ -186,7 +187,6 @@ offset_right = 707.0
 offset_bottom = 168.0
 scale = Vector2(2, 2)
 theme_override_font_sizes/font_size = 7
-button_pressed = true
 text = "Pieces"
 expand_icon = true
 
@@ -235,6 +235,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 action_mode = 0
 texture_normal = ExtResource("10_drlma")
+
+[node name="CSEngine" type="Node" parent="."]
+script = ExtResource("11_i2wol")
 
 [connection signal="text_submitted" from="LineEdit" to="." method="_on_line_edit_text_submitted"]
 [connection signal="pressed" from="PromotionChoice/PromotionChoice/Queen" to="." method="_on_queen_pressed"]

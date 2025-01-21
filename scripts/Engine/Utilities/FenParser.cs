@@ -1,0 +1,60 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ChessEngine
+{
+    public class FenParser
+    {
+
+        public const string startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        readonly Dictionary<string, int> pieces = new Dictionary<string, int>
+        {
+            { "p", 1 },
+            { "n", 2 },
+            { "b", 3 },
+            { "r", 4 },
+            { "q", 5 },
+            { "k", 6 },
+            { "P", 9 },
+            { "N", 10 },
+            { "B", 11 },
+            { "R", 12 },
+            { "Q", 13 },
+            { "K", 14 }
+        };
+
+        public ChessBoard ParseFen(string FenString)
+        {
+            ChessBoard board = new ChessBoard();
+            string[] parts = FenString.Split(' ');
+
+            // Parse the pieces
+            int i = 0;
+            string boardfen = parts[0];
+
+            // Parsing Board
+            while (i < boardfen.Length)
+            {
+                if (char.IsDigit(boardfen[i]))
+                {
+                    i += (int)char.GetNumericValue(boardfen[i]);
+                }
+                else if (boardfen[i] == '/')
+                {
+                    i++;
+                }
+                else
+                {
+                    board.Board[i] = pieces[boardfen[i].ToString()];
+                    i++;
+                }
+            }
+
+            return board;
+        }
+    }
+}
