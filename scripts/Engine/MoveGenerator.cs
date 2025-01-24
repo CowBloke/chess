@@ -10,44 +10,45 @@ namespace ChessEngine
 {
     public class MoveGenerator
     {
-
         private int pieceRank(int square) => (int)Math.Round(square / 8.0);
         private int pieceFile(int square) => square % 8;
 
-
         // Main movement generation
-        List<Move> moves;
-        public List<Move> GenerateMoves(ChessBoard board)
+        Move[] moves = new Move[218];
+        int moveCount = 0;
+
+        public Move[] GenerateMoves(ChessBoard board)
         {
+            moveCount = 0;
             GeneratePawnMoves(board);
-            moves.Add(new Move(12, 38));
-            return moves;
+            Move[] result = new Move[moveCount];
+            Array.Copy(moves, result, moveCount);
+            return result;
         }
 
-        public List<Move> GeneratePawnMoves(ChessBoard board)
+        public void GeneratePawnMoves(ChessBoard board)
         {
-            List<Move> moves = new();
             int direction = board.WhiteToMove ? 8 : -8;
 
             for (int i = 0; i < 64; i++)
             {
-                int piece = board.Board[i];
-                if (piece != 0) continue;
+                Piece piece = new Piece(board.Board[i]);
+                if (!piece.isFriendlyPiece(board.WhiteToMove)) continue;
 
                 int target = i + direction;
-                if (board.Board[target] == 0)
+                if (board.Board[target] == 0) 
                 {
                     // Single push
                     if (pieceRank(target) == (board.WhiteToMove ? 7 : 0))
                     {
-                        moves.Add(new Move(i, target, Move.MoveFlags.QueenPromotion));
-                        moves.Add(new Move(i, target, Move.MoveFlags.KnightPromotion));
-                        moves.Add(new Move(i, target, Move.MoveFlags.BishopPromotion));
-                        moves.Add(new Move(i, target, Move.MoveFlags.RookPromotion));
+                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.QueenPromotion);
+                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.KnightPromotion);
+                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.BishopPromotion);
+                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.RookPromotion);
                     }
                     else
                     {
-                        moves.Add(new Move(i, target));
+                        moves[moveCount++] = new Move(i, target);
                     }
 
                     // Double push
@@ -55,13 +56,10 @@ namespace ChessEngine
                     {
                         int doublePushTarget = i + 2 * direction;
                         if (board.Board[doublePushTarget] == 0)
-                            moves.Add(new Move(i, doublePushTarget));
+                            moves[moveCount++] = new Move(i, doublePushTarget);
                     }
                 }
             }
-
-
-            return moves;
         }
     }
 }

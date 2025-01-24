@@ -35,8 +35,7 @@ namespace ChessEngine
             // Parse the pieces
             int line = 0;
             int index = 0;
-            string[] boardfen = parts[0].Split('/');
-
+            string[] boardfen = parts[0].Split('/').Reverse().ToArray();
             // Parsing Board
             foreach (string row in boardfen)
             {
@@ -56,8 +55,9 @@ namespace ChessEngine
                 line++;
                 index = line * 8;
             }
-
             return board;
         }
+
+        
     }
 }

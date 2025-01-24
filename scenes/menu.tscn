@@ -1,9 +1,29 @@
 [gd_scene load_steps=7 format=3 uid="uid://vlec3tkhghmi"]
 
 [ext_resource type="FontFile" uid="uid://cvgmdyv5558m6" path="res://assets/fonts/Kanit-Black.ttf" id="1_5tks0"]
-[ext_resource type="Script" path="res://scripts/menu.gd" id="1_7g2hi"]
 [ext_resource type="FontFile" uid="uid://x0pjgkgvejy2" path="res://assets/fonts/Kanit-Thin.ttf" id="2_6hlnw"]
 [ext_resource type="Texture2D" uid="uid://cjv81smo8xqku" path="res://assets/images/artificial-intelligence-ai-chip-icon.png" id="3_6juli"]
+
+[sub_resource type="GDScript" id="GDScript_ey8cq"]
+script/source = "extends Control
+
+
+
+func _on_ai_pressed():
+	#Game.wPlayer = \"Human\"
+	#Game.bPlayer = \"firstbot\"
+	#Game.startingPos = \"default\"
+	#Game.setup()
+	get_tree().change_scene_to_file(\"res://scenes/board.tscn\")
+
+
+func _on_ai_vs_ai_pressed():
+	#Game.wPlayer = \"firstbot\"
+	#Game.bPlayer = \"firstbot\"
+	#Game.startingPos = \"rnbqkb1r/1p1ppppp/p4n2/2p5/2P5/1Q1P1N2/PP2PPPP/RNB1KB1R w KQkq - 0 5\"
+	#Game.setup()
+	get_tree().change_scene_to_file(\"res://scenes/board.tscn\")
+"
 
 [sub_resource type="LabelSettings" id="LabelSettings_bhhys"]
 font = ExtResource("1_5tks0")
@@ -28,7 +48,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_7g2hi")
+script = SubResource("GDScript_ey8cq")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1

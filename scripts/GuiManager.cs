@@ -14,7 +14,7 @@ public partial class GuiManager : Node
 
     // Colors for the board, first starts at top left
     Color primaryColor = new(0.969f, 0.908f, 0.874f);
-    Color secondaryColor = new(0.969f, 0.908f, 0.874f);
+    Color secondaryColor = new(0.665f, 0.442f, 0.308f);
 
     ChessBoard board = new ChessBoard(); // Create the main instance of the ChessBoard
     MoveGenerator MoveGenerator = new MoveGenerator(); // Create a movegenerator
@@ -22,25 +22,42 @@ public partial class GuiManager : Node
 
     public override void _Ready()
     {
+        //Create the board squares
         setupBoardSquares();
-        PrecomputedMoveData.PrecomputeMoveData();
+
         board = fenParser.ParseFen(FenParser.startingFen); // Use the type name to call startingFen
 
+        Move[] moves = MoveGenerator.GenerateMoves(board);
+        
+        GD.Print(moves.Length);
+
+        highlightSquare(12, new Color(1.0f, 0.0f, 0.0f), 0.5f);
+
+        PrecomputedMoveData.PrecomputeMoveData();
+        
     }
 
     public void setupBoardSquares()
     {
         Control SquareGrid = GetNode<Control>($"../SquareGrid");
-        for (int i = 0; i < 64; i++)
+        for (int file = 0; file < 8; file++)
         {
-            var square = new ColorRect();
-            squares.Add(square);
-            square.Color = (i % 2 == 0) ? primaryColor : secondaryColor;
-            square.SizeFlagsHorizontal = Control.SizeFlags.Fill;
-            square.SizeFlagsVertical = Control.SizeFlags.Fill;
-            GD.Print("hello");
-            SquareGrid.AddChild(square);
+            for (int rank = 0; rank < 8; rank++)
+            {
+                var square = new ColorRect();
+                squares.Add(square);
+                square.Color = (file + rank) % 2 == 0 ? primaryColor : secondaryColor;
+                square.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+                square.SizeFlagsVertical = Control.SizeFlags.Fill;
+                square.CustomMinimumSize = new Vector2(50, 50);
+                SquareGrid.AddChild(square);
+            }
         }
+    }
+
+    public void highlightSquare(int square, Color color, float intensity)
+    {
+        squares[square].Color = squares[square].Color.Lerp(color, intensity);
     }
 
 
