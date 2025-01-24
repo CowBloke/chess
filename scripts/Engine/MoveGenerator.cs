@@ -20,6 +20,7 @@ namespace ChessEngine
         public List<Move> GenerateMoves(ChessBoard board)
         {
             GeneratePawnMoves(board);
+            moves.Add(new Move(12, 38));
             return moves;
         }
 
