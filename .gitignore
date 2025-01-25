@@ -28,3 +28,4 @@ project.godot
 .vs/chess/v17/DocumentLayout.backup.json
 .vs/ProjectEvaluation/chess.metadata.v9.bin
 .vs/ProjectEvaluation/chess.projects.v9.bin
+*.tmp
