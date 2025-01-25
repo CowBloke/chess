@@ -25,3 +25,4 @@ project.godot
 .vs/chess/CopilotIndices/17.12.53.23981/CodeChunks.db-wal
 .vs/chess/CopilotIndices/17.12.53.23981/CodeChunks.db-shm
 .vs/chess/CopilotIndices/17.12.53.23981/CodeChunks.db
+*.tmp
