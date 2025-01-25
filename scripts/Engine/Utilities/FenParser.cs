@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,6 +37,7 @@ namespace ChessEngine
             int line = 0;
             int index = 0;
             string[] boardfen = parts[0].Split('/').Reverse().ToArray();
+            foreach(var lin in boardfen){GD.Print(lin);}
             // Parsing Board
             foreach (string row in boardfen)
             {

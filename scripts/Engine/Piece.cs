@@ -27,6 +27,8 @@ namespace ChessEngine
         public int PieceData { get; private set; }
 
         public PieceType GetPieceType() => (PieceType)(PieceData & 7);
+        public int GetPieceNumber() => (PieceData & 7);
+
         public bool isFriendlyPiece(bool white) => ((PieceData >> 3) == (white ? 1 : 0)) && PieceData != 0;
         public bool isEnemyPiece(bool white) => ((PieceData >> 3) == (white ? 0 : 1)) && PieceData != 0;
     }
