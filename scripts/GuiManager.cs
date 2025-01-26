@@ -44,8 +44,6 @@ public partial class GuiManager : Node
 
         Move[] moves = MoveGenerator.GenerateMoves(board);
 
-        GD.Print(moves.Length);
-
         foreach (var move in moves)
         {
             var initialColor = squares[move.SourceSquare].Color;
