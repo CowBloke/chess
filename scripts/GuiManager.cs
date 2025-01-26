@@ -10,35 +10,28 @@ using System.Threading.Tasks;
 
 public partial class GuiManager : Node
 {
-
+    // References to the square and piece objects
     List<ColorRect> squares = new List<ColorRect>();
+    List<TextureRect> pieces = new List<TextureRect>();
 
-    // Colors for the board, first starts at top left
+    // Colors for the board, primary starts at top left
     Color primaryColor = new(0.969f, 0.908f, 0.874f);
     Color secondaryColor = new(0.665f, 0.442f, 0.308f);
 
-    ChessBoard board = new ChessBoard(); // Create the main instance of the ChessBoard
-    MoveGenerator MoveGenerator = new MoveGenerator(); // Create a movegenerator
-    FenParser fenParser = new FenParser(); // Create an instance of FenParser
+    // Create the main instance of the ChessBoard, used throughout the program
+    ChessBoard board = new ChessBoard();
+    MoveGenerator MoveGenerator = new MoveGenerator();
+    FenParser fenParser = new FenParser();
 
-    readonly System.Collections.Generic.Dictionary<int, string> pieceToTexture = new System.Collections.Generic.Dictionary<int, string>
+    // Dictionary to map the piece number to the texture name in the texture folder
+    readonly System.Collections.Generic.Dictionary<int, string> pieceToTexture = new()
     {
-        { 1, "bP" },
-        { 2, "bN" },
-        { 3, "bB" },
-        { 4, "bR" },
-        { 5, "bQ" },
-        { 6, "bK" },
-        { 9, "wP" },
-        { 10, "wN" },
-        { 11, "wB" },
-        { 12, "wR" },
-        { 13, "wQ" },
-        { 14, "wK" }
+        { 1, "bP" }, { 2, "bN" }, { 3, "bB" }, { 4, "bR" }, { 5, "bQ" }, { 6, "bK" },
+        { 9, "wP" }, { 10, "wN" }, { 11, "wB" }, { 12, "wR" }, { 13, "wQ" }, { 14, "wK" }
     };
 
 
-
+    // Ready function called at beginning
     public override async void _Ready()
     {
         //Create the board squares
@@ -68,6 +61,7 @@ public partial class GuiManager : Node
         }
     }
 
+    // Setup the board squares
     public void setupBoardSquares()
     {
         Control SquareGrid = GetNode<Control>($"../SquareGrid");
@@ -86,45 +80,33 @@ public partial class GuiManager : Node
         }
     }
 
+    // Setup the pieces on the board
     public void setupPieces()
     {
         Control PieceGrid = GetNode<Control>($"../PieceGrid");
         var gridNumber = 0;
         foreach (var piece in board.Board)
         {
-            if (piece == 0) {gridNumber++;continue;}
+            if (piece == 0) {gridNumber++;continue; } // Skipping if the square is empty
             var pieceObject = new Piece(piece);
             var pieceSprite = new TextureRect();
+            // Loading the texture for the piece, refer to the dictionary above
             pieceSprite.Texture = (Texture2D)ResourceLoader.Load("res://pieces/" + pieceToTexture[pieceObject.PieceData] + ".png");
             pieceSprite.Position = new Vector2(50 * ((float)gridNumber%8), 50 * (7-(float)Math.Floor(gridNumber/ 8.0))); 
-            pieceSprite.Position += new Vector2(5, 5);
+            pieceSprite.Position += new Vector2(5, 5); // Small offset to center the piece
             pieceSprite.CustomMinimumSize = new Vector2(40, 40);
-            pieceSprite.TextureFilter = CanvasItem.TextureFilterEnum.Nearest;
+            pieceSprite.TextureFilter = CanvasItem.TextureFilterEnum.Nearest; // Makes the filter look neat for the pixelated piece textures
             PieceGrid.AddChild(pieceSprite);
             gridNumber++;
         }
     }
 
+    // Highlighting a specific square on the board with a color and intensity
     public void highlightSquare(int square, Color color, float intensity)
     {
         squares[square].Color = squares[square].Color.Lerp(color, intensity);
     }
-
-
-
-    public Godot.Collections.Array<int> GetMoves()
-    {
-        var moves = MoveGenerator.GenerateMoves(board);
-        var moveDataList = new System.Collections.Generic.List<int>();
-
-        foreach (var move in moves)
-        {
-            moveDataList.Add(move.Data);
-        }
-
-        var array = new Godot.Collections.Array<int>(moveDataList);
-        var testmove = new Move(12, 38);
-        moveDataList.Add(testmove.Data);
-        return array;
-    }
 }
+
+
+

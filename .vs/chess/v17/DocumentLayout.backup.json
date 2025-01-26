@@ -23,12 +23,12 @@
       "RelativeMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|solutionrelative:scripts\\engine\\movegenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|c:\\users\\cowbl\\me\\godot\\chess\\chess\\scripts\\engine\\precomputedmovedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|solutionrelative:scripts\\engine\\precomputedmovedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|c:\\users\\cowbl\\me\\godot\\chess\\chess\\scripts\\engine\\piece.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|solutionrelative:scripts\\engine\\piece.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|c:\\users\\cowbl\\me\\godot\\chess\\chess\\scripts\\engine\\precomputedmovedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{95FAA8B0-AC54-4B75-A09E-15EEA39859EB}|chess.csproj|solutionrelative:scripts\\engine\\precomputedmovedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -48,34 +48,36 @@
               "RelativeDocumentMoniker": "scripts\\GuiManager.cs",
               "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\GuiManager.cs*",
               "RelativeToolTip": "scripts\\GuiManager.cs*",
-              "ViewState": "AgIAADcAAAAAAAAAAAAiwE4AAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABwAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-24T17:36:17.706Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
               "Title": "Piece.cs",
               "DocumentMoniker": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\Piece.cs",
               "RelativeDocumentMoniker": "scripts\\Engine\\Piece.cs",
               "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\Piece.cs",
               "RelativeToolTip": "scripts\\Engine\\Piece.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-21T16:42:23.671Z"
+              "WhenOpened": "2025-01-21T16:42:23.671Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "PrecomputedMoveData.cs",
               "DocumentMoniker": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\PrecomputedMoveData.cs",
               "RelativeDocumentMoniker": "scripts\\Engine\\PrecomputedMoveData.cs",
               "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\PrecomputedMoveData.cs",
               "RelativeToolTip": "scripts\\Engine\\PrecomputedMoveData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABwAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-21T16:42:22.596Z"
+              "WhenOpened": "2025-01-21T16:42:22.596Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -85,7 +87,7 @@
               "RelativeDocumentMoniker": "scripts\\Engine\\Utilities\\FenParser.cs",
               "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\Utilities\\FenParser.cs",
               "RelativeToolTip": "scripts\\Engine\\Utilities\\FenParser.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAACUAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-21T16:38:03.617Z",
               "EditorCaption": ""
@@ -98,7 +100,7 @@
               "RelativeDocumentMoniker": "scripts\\Engine\\Move.cs",
               "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\Move.cs",
               "RelativeToolTip": "scripts\\Engine\\Move.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAAaAAAAAAAAAA==",
+              "ViewState": "AgIAABUAAAAAAAAAAAAowCQAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-21T16:36:10.914Z",
               "EditorCaption": ""
@@ -109,9 +111,9 @@
               "Title": "MoveGenerator.cs",
               "DocumentMoniker": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\MoveGenerator.cs",
               "RelativeDocumentMoniker": "scripts\\Engine\\MoveGenerator.cs",
-              "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\MoveGenerator.cs*",
-              "RelativeToolTip": "scripts\\Engine\\MoveGenerator.cs*",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwCsAAAA0AAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\cowbl\\Me\\Godot\\chess\\chess\\scripts\\Engine\\MoveGenerator.cs",
+              "RelativeToolTip": "scripts\\Engine\\MoveGenerator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACsAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-21T16:35:57.031Z",
               "EditorCaption": ""
