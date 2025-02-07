@@ -13,12 +13,12 @@ config_version=5
 config/name="chess"
 run/main_scene="res://scenes/menu.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://pieces/wN.png"
 
 [display]
 
 window/size/viewport_width=800
-window/size/viewport_height=480
+window/size/viewport_height=450
 window/size/mode=3
 window/stretch/mode="canvas_items"
 

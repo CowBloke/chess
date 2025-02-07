@@ -32,12 +32,12 @@
 
         public Move(int source, int destination, MoveFlags flags) => data = (ushort)((source & 0x3F) | ((destination & 0x3F) << 6) | ((int)flags << 12));
 
-		public int SourceSquare => data & 0x3F;
-		public int DestinationSquare => (data >> 6) & 0x3F;
+		public int start => data & 0x3F;
+		public int end => (data >> 6) & 0x3F;
 		public int Data => data;
         public MoveFlags Flags => (MoveFlags)((data >> 12) & 0xF);
 
 		public override string ToString() =>
-			$"Source: {SourceSquare}, Destination: {DestinationSquare}, Flags: {Flags}";
+			$"Source: {start}, Destination: {end}, Flags: {Flags}";
 	}
 }

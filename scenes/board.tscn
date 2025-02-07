@@ -1,14 +1,15 @@
-[gd_scene load_steps=10 format=3 uid="uid://nu70trbhcl44"]
+[gd_scene load_steps=11 format=3 uid="uid://nu70trbhcl44"]
 
-[ext_resource type="AudioStream" uid="uid://q3arq0lyx12d" path="res://sounds/move-self.mp3" id="2_yinrl"]
+[ext_resource type="AudioStream" uid="uid://q3arq0lyx12d" path="res://sounds/move.mp3" id="2_yinrl"]
 [ext_resource type="AudioStream" uid="uid://b678ct6g4e2rb" path="res://sounds/capture.mp3" id="3_fcq2m"]
 [ext_resource type="AudioStream" uid="uid://2ni5ut0i8f0w" path="res://sounds/castle.mp3" id="4_k7uu0"]
-[ext_resource type="AudioStream" uid="uid://b108jkaa6mmgc" path="res://sounds/move-check.mp3" id="5_nk50v"]
+[ext_resource type="AudioStream" uid="uid://b108jkaa6mmgc" path="res://sounds/check.mp3" id="5_nk50v"]
 [ext_resource type="Texture2D" uid="uid://djl6jqma1xp0y" path="res://pieces/wQ.png" id="7_q5knr"]
 [ext_resource type="Texture2D" uid="uid://de0wv1gkcms1r" path="res://pieces/wR.png" id="8_vvogp"]
 [ext_resource type="Texture2D" uid="uid://b78svxmh2pwon" path="res://pieces/wB.png" id="9_cbyqu"]
-[ext_resource type="Script" path="res://scripts/GuiManager.cs" id="9_yqlno"]
+[ext_resource type="Script" path="res://scripts/GUI/GuiManager.cs" id="9_o6hyu"]
 [ext_resource type="Texture2D" uid="uid://cp2xcq315jqlg" path="res://pieces/wN.png" id="10_drlma"]
+[ext_resource type="Script" path="res://scripts/GUI/SoundManager.cs" id="10_o38mv"]
 
 [node name="Board" type="Control"]
 layout_mode = 3
@@ -23,34 +24,20 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -134.0
-offset_top = -143.0
-offset_right = 134.0
-offset_bottom = 143.0
+offset_left = -43.0
+offset_top = -35.0
+offset_right = 43.0
+offset_bottom = 35.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.122252, 0.122252, 0.122252, 1)
 
-[node name="LineEdit" type="LineEdit" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.13875
-anchor_top = 0.0166667
-anchor_right = 0.8425
-anchor_bottom = 0.0610833
-offset_bottom = -0.32
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 8
-placeholder_text = "Fen Notation..."
-metadata/_edit_use_anchors_ = true
-
 [node name="Border" type="ColorRect" parent="."]
 layout_mode = 2
 offset_left = 195.0
-offset_top = 35.0
+offset_top = 20.0
 offset_right = 605.0
-offset_bottom = 445.0
+offset_bottom = 430.0
 color = Color(0.325441, 0.325441, 0.325441, 1)
 
 [node name="SquareGrid" type="GridContainer" parent="."]
@@ -71,30 +58,12 @@ theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 0
 columns = 8
 
-[node name="OverlayGrid" type="GridContainer" parent="."]
-clip_contents = true
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -200.0
-offset_right = 200.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/h_separation = -1
-theme_override_constants/v_separation = -1
-columns = 8
-
 [node name="PieceGrid" type="Control" parent="."]
 anchors_preset = 0
 offset_left = 200.0
-offset_top = 40.0
+offset_top = 25.0
 offset_right = 600.0
-offset_bottom = 440.0
+offset_bottom = 425.0
 
 [node name="Sounds" type="Control" parent="."]
 anchors_preset = 0
@@ -116,75 +85,6 @@ stream = ExtResource("5_nk50v")
 [node name="Bot" type="Node" parent="."]
 
 [node name="Bot2" type="Node" parent="."]
-
-[node name="BasicLogic" type="Node" parent="."]
-
-[node name="Last Move" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 35.0
-offset_top = 175.0
-offset_right = -610.0
-offset_bottom = -246.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.721569, 0.333333, 1, 1)
-theme_override_font_sizes/font_size = 12
-vertical_alignment = 1
-
-[node name="Moves" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.047
-anchor_top = 0.37
-anchor_right = 0.215
-anchor_bottom = 0.414
-offset_left = -5.24001
-offset_top = 83.4
-offset_right = 22.2
-offset_bottom = 109.88
-theme_override_colors/font_color = Color(0.658824, 0, 1, 1)
-theme_override_font_sizes/font_size = 33
-
-[node name="Result" type="Label" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 551.0
-offset_top = 256.0
-offset_right = 853.0
-offset_bottom = 395.0
-theme_override_colors/font_color = Color(0.953738, 0.802807, 0.510295, 1)
-theme_override_font_sizes/font_size = 23
-text = "Checkmate
-Human Wins"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Attack" type="CheckButton" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 607.0
-offset_top = 194.0
-offset_right = 706.0
-offset_bottom = 234.0
-scale = Vector2(2, 2)
-theme_override_font_sizes/font_size = 7
-text = "Attack Squares"
-expand_icon = true
-
-[node name="Pieces" type="CheckButton" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 623.0
-offset_top = 143.0
-offset_right = 707.0
-offset_bottom = 168.0
-scale = Vector2(2, 2)
-theme_override_font_sizes/font_size = 7
-text = "Pieces"
-expand_icon = true
 
 [node name="PromotionChoice" type="CenterContainer" parent="."]
 visible = false
@@ -233,9 +133,11 @@ action_mode = 0
 texture_normal = ExtResource("10_drlma")
 
 [node name="CSEngine" type="Node" parent="."]
-script = ExtResource("9_yqlno")
+script = ExtResource("9_o6hyu")
 
-[connection signal="text_submitted" from="LineEdit" to="." method="_on_line_edit_text_submitted"]
+[node name="SoundManager" type="AudioStreamPlayer" parent="."]
+script = ExtResource("10_o38mv")
+
 [connection signal="pressed" from="PromotionChoice/PromotionChoice/Queen" to="." method="_on_queen_pressed"]
 [connection signal="pressed" from="PromotionChoice/PromotionChoice/Rook" to="." method="_on_rook_pressed"]
 [connection signal="pressed" from="PromotionChoice/PromotionChoice/Bishop" to="." method="_on_bishop_pressed"]

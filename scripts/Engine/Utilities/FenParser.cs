@@ -12,25 +12,31 @@ namespace ChessEngine
 
         public const string startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-        readonly Dictionary<string, int> pieces = new Dictionary<string, int>
+        readonly Dictionary<string, Piece> pieces = new Dictionary<string, Piece>
                 {
-                    { "p", 1 },
-                    { "n", 2 },
-                    { "b", 3 },
-                    { "r", 4 },
-                    { "q", 5 },
-                    { "k", 6 },
-                    { "P", 9 },
-                    { "N", 10 },
-                    { "B", 11 },
-                    { "R", 12 },
-                    { "Q", 13 },
-                    { "K", 14 }
+                    { "p", Piece.BlackPawn },
+                    { "n", Piece.BlackKnight },
+                    { "b", Piece.BlackBishop },
+                    { "r", Piece.BlackRook },
+                    { "q", Piece.BlackQueen },
+                    { "k", Piece.BlackKing },
+
+                    { "P", Piece.WhitePawn },
+                    { "N", Piece.WhiteKnight },
+                    { "B", Piece.WhiteBishop },
+                    { "R", Piece.WhiteRook },
+                    { "Q", Piece.WhiteQueen },
+                    { "K", Piece.WhiteKing }
                 };
 
         public ChessBoard ParseFen(string FenString)
         {
             ChessBoard board = new ChessBoard();
+            // Fill the board with empty pieces
+            for (int i = 0; i < 64; i++)
+            {
+                board.Board[i] = Piece.Null;
+            }
             string[] parts = FenString.Split(' ');
 
             // Parse the pieces
@@ -56,6 +62,9 @@ namespace ChessEngine
                 line++;
                 index = line * 8;
             }
+
+            // Parse the side to move
+            board.WhiteToMove = parts[1] == "w";
             return board;
         }
 

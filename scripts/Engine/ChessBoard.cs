@@ -10,12 +10,20 @@ namespace ChessEngine
 {
     public class ChessBoard
     {
-        public int[] Board { get; private set; }
+        public Piece[] Board { get; private set; }
         public bool WhiteToMove;
 
         public ChessBoard()
         {
-            Board = new int[64];
+            Board = new Piece[64];
+        }
+
+        public void MakeMove(Move move)
+        {
+            Board[move.end] = Board[move.start];
+            Board[move.start] = Piece.Null;
+
+            WhiteToMove = !WhiteToMove;
         }
     }
 }

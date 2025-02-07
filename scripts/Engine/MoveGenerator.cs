@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using Godot;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using static Godot.TextServer;
 
 
 namespace ChessEngine
 {
     public class MoveGenerator
     {
-        private int pieceRank(int square) => (int)Math.Round(square / 8.0);
+        private int pieceRank(int square) => (int)Math.Floor(square / 8.0);
         private int pieceFile(int square) => square % 8;
 
         // Main movement generation
@@ -21,6 +22,7 @@ namespace ChessEngine
         {
             moveCount = 0;
             GeneratePawnMoves(board);
+            GenerateKnightMoves(board);
             Move[] result = new Move[moveCount];
             Array.Copy(moves, result, moveCount);
             return result;
@@ -32,31 +34,47 @@ namespace ChessEngine
 
             for (int i = 0; i < 64; i++)
             {
-                Piece piece = new Piece(board.Board[i]);
-                if (!piece.isFriendlyPiece(board.WhiteToMove)) continue;
+                Piece piece = board.Board[i];
+                if (piece.isFriendlyPiece(board.WhiteToMove) & piece.GetPieceType() == Piece.PieceType.Pawn) {
+                    int target = i + direction;
+                    if (board.Board[target] == Piece.Null)
+                    {
+                        // Single push
+                        if (pieceRank(target) == (board.WhiteToMove ? 7 : 0))
+                        {
+                            moves[moveCount++] = new Move(i, target, Move.MoveFlags.QueenPromotion);
+                            moves[moveCount++] = new Move(i, target, Move.MoveFlags.KnightPromotion);
+                            moves[moveCount++] = new Move(i, target, Move.MoveFlags.BishopPromotion);
+                            moves[moveCount++] = new Move(i, target, Move.MoveFlags.RookPromotion);
+                        }
+                        else
+                        {
+                            moves[moveCount++] = new Move(i, target);
+                        }
 
-                int target = i + direction;
-                if (board.Board[target] == 0) 
+                        // Double push
+                        if (pieceRank(i) == (board.WhiteToMove ? 1 : 6))
+                        {
+                            int doublePushTarget = i + 2 * direction;
+                            if (board.Board[doublePushTarget] == Piece.Null)
+                                moves[moveCount++] = new Move(i, doublePushTarget);
+                        }
+                    }
+                }
+            }
+        }
+        public void GenerateKnightMoves(ChessBoard board)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                Piece piece = board.Board[i];
+                if (piece.isFriendlyPiece(board.WhiteToMove) & (piece.GetPieceType() == Piece.PieceType.Knight))
                 {
-                    // Single push
-                    if (pieceRank(target) == (board.WhiteToMove ? 7 : 0))
+                    foreach (int target in PrecomputedMoveData.knightMoves[i])
                     {
-                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.QueenPromotion);
-                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.KnightPromotion);
-                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.BishopPromotion);
-                        moves[moveCount++] = new Move(i, target, Move.MoveFlags.RookPromotion);
-                    }
-                    else
-                    {
+                        Piece targetPiece = board.Board[target];
+                        if (targetPiece.isFriendlyPiece(board.WhiteToMove)) continue;
                         moves[moveCount++] = new Move(i, target);
-                    }
-
-                    // Double push
-                    if (pieceRank(i) == (board.WhiteToMove ? 1 : 6))
-                    {
-                        int doublePushTarget = i + 2 * direction;
-                        if (board.Board[doublePushTarget] == 0)
-                            moves[moveCount++] = new Move(i, doublePushTarget);
                     }
                 }
             }
